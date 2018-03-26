@@ -53,19 +53,19 @@ win = visual.Window(fullscr=True, size=[1280, 800], screen=0, monitor="MBP", uni
 # msg.setAutoDraw(False)
 
 # create some stimuli
-grating = visual.GratingStim(win=win, mask='circle', size=3, pos=[-4, 0], sf=3)
-fixation = visual.GratingStim(win=win, size=0.2, pos=[0, 0], sf=0, rgb=-1)
+frac = visual.ImageStim(win=win, image="Fractal/julia1.png", size=[5, 5])
+fixation = visual.GratingStim(win=win, size=0.2, pos=[0, 0], sf=0)
 
 # draw the stimuli and update the window
 while True:  # this creates a never-ending loop
-    grating.setPhase(0.05, '+')  # advance phase by 0.05 of a cycle
-    grating.draw()
+    frac.draw()
     fixation.draw()
     win.flip()
 
     keys = event.getKeys()
     if len(keys) > 0:
         print(keys)
+        break
     event.clearEvents()
 
 win.close()

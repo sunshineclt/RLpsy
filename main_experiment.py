@@ -87,8 +87,8 @@ elif condition_index == 1:
 else:
     index = [0, 1, 2, 3, 4, 5]
 temp = fractals.copy()
-for index, i in enumerate(index):
-    fractals[index] = temp[i]
+for index1, i in enumerate(index):
+    fractals[index1] = temp[i]
 
 # prepare for other stimulus
 fixation_horizon = visual.Line(win, start=(-.5, 0), end=(.5, 0), lineWidth=3)
@@ -115,6 +115,7 @@ event.waitKeys(keyList="space")
 task_order = []
 for i in range(0, 200):
     task_order.append({"from": i % 3, "to": (i + 1) % 3})
+np.random.shuffle(task_order)
 trials = data.TrialHandler(task_order, nReps=1, extraInfo=exp_info, method="sequential", originPath=data_path)
 transition = Transition()
 steps_record = []
@@ -207,7 +208,7 @@ for trial in trials:
     # prepare for next trial
     trials.addData("trial_data", trial_record)
     steps_record.append(step)
-    if len(steps_record) >= 3 and np.mean(steps_record[-5:]) <= 15:
+    if len(steps_record) >= 5 and np.mean(steps_record[-5:]) <= 10:
         break
 
 trials.saveAsWideText(data_fname + ".csv", delim=",")

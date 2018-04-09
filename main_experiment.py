@@ -18,7 +18,7 @@ mon.setSizePix([1280, 800])
 ################################################################################
 # Logging setup
 ################################################################################
-logging.console.setLevel(logging.INFO)
+logging.console.setLevel(logging.DATA)
 lastLog = logging.LogFile("lastRun.log", level=logging.INFO, filemode='w')
 centralLog = logging.LogFile("AllLog.log", level=logging.WARNING, filemode='a')
 ################################################################################
@@ -72,11 +72,8 @@ win = visual.Window(fullscr=True, size=[1280, 800], screen=0, monitor=mon, units
 
 # load stimulus images
 fractals = []
-for i in range(1, 4):
-    frac = visual.ImageStim(win, "Fractal/julia" + str(i) + ".png", size=[6, 6])
-    fractals.append(frac)
-for i in range(2, 5):
-    frac = visual.ImageStim(win, "Fractal/mandelbrot" + str(i) + ".png", size=[6, 6])
+for i in range(1, 7):
+    frac = visual.ImageStim(win, "Fractal/" + str(i) + ".jpg", size=[6, 6])
     fractals.append(frac)
 # assign stimulus via random across participants
 np.random.shuffle(fractals)

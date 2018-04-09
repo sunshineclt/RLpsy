@@ -137,7 +137,7 @@ for trial in trials:
     fractals[trial_start_state].setPos([0, 0])
     fractals[trial_end_state].setPos([11, 0])
     general_clock.reset()
-    while general_clock.getTime() < 2:
+    while general_clock.getTime() < 1.5:
         from_label.draw()
         to_label.draw()
         fractals[trial_start_state].draw()
@@ -149,7 +149,7 @@ for trial in trials:
     now_state = trial_start_state
     trial_record = []
     while now_state != trial_end_state:
-        print("now: ", now_state)
+        # print("now: ", now_state)
         step += 1
 
         # show state
@@ -164,7 +164,6 @@ for trial in trials:
         # listen to response
         general_clock.reset()
         rt = 100000
-        print("wait for key")
         event.clearEvents()
         keys = event.getKeys(keyList=["b", "n", "h"], timeStamped=general_clock)
         while len(keys) == 0:
@@ -180,12 +179,12 @@ for trial in trials:
         # make transition
         new_state = transition.step(now_state, action)
         trial_record.append([now_state, action, new_state, rt])
-        for i in range(0, 31):
+        for i in range(0, 21):
             fractals[new_state].setPos([0, 0])
-            fractals[new_state].setOpacity(i / 30)
+            fractals[new_state].setOpacity(i / 20)
             fractals[new_state].draw()
             fractals[now_state].setPos([0, 0])
-            fractals[now_state].setOpacity(1 - i / 30)
+            fractals[now_state].setOpacity(1 - i / 20)
             fractals[now_state].draw()
             fractals[trial_end_state].setPos([11, 0])
             fractals[trial_end_state].setOpacity(1)
@@ -217,8 +216,9 @@ for trial in trials:
     # data storing
     trials.addData("trial_data", trial_record)
     timesteps_record.append(step)
-    if len(timesteps_record) >= 5 and np.mean(timesteps_record[-5:]) <= 10:
+    if len(timesteps_record) >= 10 and np.mean(timesteps_record[-5:]) <= 3:
         break
+    print("trial length: ", step)
 
 trials.saveAsWideText(data_filename + ".csv", delim="#")
 win.close()

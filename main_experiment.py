@@ -57,7 +57,7 @@ event.globalKeys.clear()
 
 def exit_and_print():
     print("q pressed! exit now...")
-    trials.saveAsWideText(data_filename + "_quit" + ".csv", delim=",")
+    trials.saveAsWideText(data_filename + "_quit" + ".csv", delim="#")
     core.quit()
 
 
@@ -179,7 +179,7 @@ for trial in trials:
 
         # make transition
         new_state = transition.step(now_state, action)
-        trial_record.append((now_state, action, new_state, rt))
+        trial_record.append([now_state, action, new_state, rt])
         for i in range(0, 31):
             fractals[new_state].setPos([0, 0])
             fractals[new_state].setOpacity(i / 30)
@@ -220,7 +220,7 @@ for trial in trials:
     if len(timesteps_record) >= 5 and np.mean(timesteps_record[-5:]) <= 10:
         break
 
-trials.saveAsWideText(data_filename + ".csv", delim=",")
+trials.saveAsWideText(data_filename + ".csv", delim="#")
 win.close()
 core.quit()
 ################################################################################

@@ -56,6 +56,7 @@ event.globalKeys.clear()
 
 def exit_and_print():
     print("q pressed! exit now...")
+    trials.saveAsWideText(data_filename + "_quit" + ".csv", delim=",")
     core.quit()
 
 

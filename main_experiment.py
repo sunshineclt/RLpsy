@@ -69,6 +69,7 @@ event.globalKeys.add(key='q', func=exit_and_print, name='shutdown')
 from psychopy import visual
 
 win = visual.Window(fullscr=True, size=[1280, 800], screen=0, monitor=mon, units="deg")
+np.random.seed(int(exp_info["participant"]))
 
 # load stimulus images
 fractals = []

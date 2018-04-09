@@ -191,14 +191,17 @@ for trial in trials:
     # Feedback
     general_clock.reset()
     while general_clock.getTime() < 3:
+        fractals[now_state].setPos([0, 0])
+        fractals[now_state].draw()
+        [i.draw() for i in operation_label]
         well_done_label.setText("Well Done!")
-        well_done_label.setPos([0, 2])
+        well_done_label.setPos([11, 2])
         well_done_label.draw()
-        well_done_label.setText("It takes you " + str(step) + " steps")
-        well_done_label.setPos([0, 0])
+        well_done_label.setText(str(step) + " steps")
+        well_done_label.setPos([11, 0])
         well_done_label.draw()
-        well_done_label.setText("Your reward is {}. ".format(max(20 - step, 1)))
-        well_done_label.setPos([0, -2])
+        well_done_label.setText("Reward is {}. ".format(max(20 - step, 1)))
+        well_done_label.setPos([11, -2])
         well_done_label.draw()
         win.flip()
     win.flip()

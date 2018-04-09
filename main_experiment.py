@@ -89,9 +89,15 @@ fixation_vertical = visual.Line(win, start=(0, -.5), end=(0, .5), lineWidth=3)
 #                                         'Press space to start', pos=(0, 0), size=(5, 5), units="deg", font_size=10)
 # task_indication.setSize([5, 5])
 task_label = visual.TextStim(win, "Press space to start")
-from_label = visual.TextStim(win, "From", pos=(0, 7))
-to_label = visual.TextStim(win, "To", pos=(0, -1))
+from_label = visual.TextStim(win, "From", pos=(0, 5))
+to_label = visual.TextStim(win, "To", pos=(11, 5))
 operation_label = visual.TextStim(win, "Press f or j", pos=(0, 1))
+operation_label = [visual.Line(win, start=(0, 8), end=(1, 6.268), lineWidth=5),
+                   visual.Line(win, start=(0, 8), end=(-1, 6.268), lineWidth=5),
+                   visual.Line(win, start=(-6.928, -5), end=(-4.996, -4.482), lineWidth=5),
+                   visual.Line(win, start=(-6.928, -5), end=(-6.411, -3.068), lineWidth=5),
+                   visual.Line(win, start=(6.928, -5), end=(4.996, -4.482), lineWidth=5),
+                   visual.Line(win, start=(6.928, -5), end=(6.411, -3.068), lineWidth=5)]
 well_done_label = visual.TextStim(win, "Well Done!", pos=(0, 0))
 general_clock = core.Clock()
 
@@ -125,8 +131,8 @@ for trial in trials:
     win.flip()
 
     # goal
-    fractals[trial_start_state].setPos([0, 3])
-    fractals[trial_end_state].setPos([0, -5])
+    fractals[trial_start_state].setPos([0, 0])
+    fractals[trial_end_state].setPos([11, 0])
     general_clock.reset()
     while general_clock.getTime() < 2:
         from_label.draw()
@@ -136,19 +142,19 @@ for trial in trials:
         win.flip()
 
     # Start Free Choice
-    timestep = 0
+    step = 0
     now_state = trial_start_state
     trial_record = []
     while now_state != trial_end_state:
-        timestep += 1
+        step += 1
 
         # show state
-        fractals[now_state].setPos([0, 5])
-        fractals[trial_end_state].setPos([0, -5])
+        fractals[now_state].setPos([0, 0])
         fractals[now_state].draw()
+        fractals[trial_end_state].setPos([11, 0])
         fractals[trial_end_state].draw()
         to_label.draw()
-        operation_label.draw()
+        [i.draw() for i in operation_label]
         win.flip()
 
         # listen to response
@@ -174,10 +180,10 @@ for trial in trials:
         well_done_label.setText("Well Done!")
         well_done_label.setPos([0, 2])
         well_done_label.draw()
-        well_done_label.setText("It takes you " + str(timestep) + " steps")
+        well_done_label.setText("It takes you " + str(step) + " steps")
         well_done_label.setPos([0, 0])
         well_done_label.draw()
-        well_done_label.setText("Your reward is {}. ".format(max(20 - timestep, 1)))
+        well_done_label.setText("Your reward is {}. ".format(max(20 - step, 1)))
         well_done_label.setPos([0, -2])
         well_done_label.draw()
         win.flip()
@@ -185,7 +191,7 @@ for trial in trials:
 
     # data storing
     trials.addData("trial_data", trial_record)
-    timesteps_record.append(timestep)
+    timesteps_record.append(step)
     if len(timesteps_record) >= 5 and np.mean(timesteps_record[-5:]) <= 10:
         break
 

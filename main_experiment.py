@@ -149,6 +149,7 @@ for trial in trials:
     now_state = trial_start_state
     trial_record = []
     while now_state != trial_end_state:
+        print("now: ", now_state)
         step += 1
 
         # show state
@@ -163,14 +164,18 @@ for trial in trials:
         # listen to response
         general_clock.reset()
         rt = 100000
-        keys = event.getKeys(keyList=["f", "j"], timeStamped=general_clock)
+        print("wait for key")
+        event.clearEvents()
+        keys = event.getKeys(keyList=["b", "n", "h"], timeStamped=general_clock)
         while len(keys) == 0:
-            keys = event.getKeys(keyList=["f", "j"], timeStamped=general_clock)
+            keys = event.getKeys(keyList=["b", "n", "h"], timeStamped=general_clock)
         rt = keys[0][1]
-        if keys[0][0] == 'f':
+        if keys[0][0] == 'h':
             action = 0
-        else:
+        elif keys[0][0] == 'b':
             action = 1
+        else:
+            action = 2
 
         # make transition
         new_state = transition.step(now_state, action)

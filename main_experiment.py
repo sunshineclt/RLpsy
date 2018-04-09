@@ -3,6 +3,7 @@
 import os
 
 import numpy as np
+import random
 from psychopy import gui, core, data, logging, monitors
 
 from Transition import Transition
@@ -71,6 +72,8 @@ from psychopy import visual
 
 win = visual.Window(fullscr=True, size=[1280, 800], screen=0, monitor=mon, units="deg")
 np.random.seed(int(exp_info["participant"]))
+random.seed(int(exp_info["participant"]))
+
 
 # load stimulus images
 fractals = []

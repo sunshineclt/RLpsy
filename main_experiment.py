@@ -134,7 +134,6 @@ for trial in trials:
         fractals[trial_start_state].draw()
         fractals[trial_end_state].draw()
         win.flip()
-    win.flip()
 
     # Start Free Choice
     timestep = 0
@@ -163,7 +162,6 @@ for trial in trials:
             action = 0
         else:
             action = 1
-        win.flip()
 
         # make transition
         new_state = transition.step(now_state, action)

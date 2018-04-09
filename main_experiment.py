@@ -172,6 +172,20 @@ for trial in trials:
         # make transition
         new_state = transition.step(now_state, action)
         trial_record.append((now_state, action, new_state, rt))
+        for i in range(0, 31):
+            fractals[new_state].setPos([0, 0])
+            fractals[new_state].setOpacity(i / 30)
+            fractals[new_state].draw()
+            fractals[now_state].setPos([0, 0])
+            fractals[now_state].setOpacity(1 - i / 30)
+            fractals[now_state].draw()
+            fractals[trial_end_state].setPos([11, 0])
+            fractals[trial_end_state].setOpacity(1)
+            fractals[trial_end_state].draw()
+            to_label.draw()
+            [i.draw() for i in operation_label]
+            win.flip()
+        fractals[now_state].setOpacity(1)
         now_state = new_state
 
     # Feedback

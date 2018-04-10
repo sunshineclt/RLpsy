@@ -176,6 +176,29 @@ for trial in trials:
         else:
             action = 2
 
+        # emphasize action selection
+        operation_label[action * 2].setOpacity(0)
+        operation_label[action * 2 + 1].setOpacity(0)
+        fractals[now_state].setPos([0, 0])
+        fractals[now_state].draw()
+        fractals[trial_end_state].setPos([11, 0])
+        fractals[trial_end_state].draw()
+        to_label.draw()
+        [i.draw() for i in operation_label]
+        win.flip()
+        general_clock.reset()
+        while general_clock.getTime() < 0.1:
+            pass
+        operation_label[action * 2].setOpacity(1)
+        operation_label[action * 2 + 1].setOpacity(1)
+        fractals[now_state].setPos([0, 0])
+        fractals[now_state].draw()
+        fractals[trial_end_state].setPos([11, 0])
+        fractals[trial_end_state].draw()
+        to_label.draw()
+        [i.draw() for i in operation_label]
+        win.flip()
+
         # make transition
         new_state = transition.step(now_state, action)
         trial_record.append([now_state, action, new_state, rt])

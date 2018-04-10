@@ -111,7 +111,7 @@ event.waitKeys(keyList="space")
 
 # generate randomized trial sequence
 task_order = []
-for i in range(0, 200):
+for i in range(0, 150):
     task_order.append({"from": i % 3, "to": (i + 1) % 3})
 np.random.shuffle(task_order)
 trials = data.TrialHandler(task_order, nReps=1, extraInfo=exp_info, method="sequential", originPath=data_path)
@@ -239,8 +239,8 @@ for trial in trials:
     # data storing
     trials.addData("trial_data", trial_record)
     timesteps_record.append(step)
-    if len(timesteps_record) >= 10 and np.mean(timesteps_record[-5:]) <= 3:
-        break
+    # if len(timesteps_record) >= 10 and np.mean(timesteps_record[-5:]) <= 3:
+    #     break
     print("trial length: ", step)
 
 trials.saveAsWideText(data_filename + ".csv", delim="#")

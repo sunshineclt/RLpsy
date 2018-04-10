@@ -4,7 +4,7 @@ import os
 
 import numpy as np
 import random
-from psychopy import gui, core, data, logging, monitors
+from psychopy import gui, core, data, logging, monitors, sound
 
 from Transition import Transition
 
@@ -104,6 +104,7 @@ operation_label = [visual.Line(win, start=(0, 8), end=(1, 6.268), lineWidth=5),
 reward_label = visual.TextStim(win, "Reward: ", pos=(0, -7))
 well_done_label = visual.TextStim(win, "Well Done!", pos=(0, -6))
 general_clock = core.Clock()
+success_sound = sound.Sound("success.wav")
 
 # indication
 task_label.draw()
@@ -225,6 +226,7 @@ for trial in trials:
         now_state = new_state
 
     # Feedback
+    success_sound.play()
     general_clock.reset()
     while general_clock.getTime() < 3:
         fractals[now_state].setPos([0, 0])

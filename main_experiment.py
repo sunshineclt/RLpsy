@@ -101,7 +101,8 @@ operation_label = [visual.Line(win, start=(0, 8), end=(1, 6.268), lineWidth=5),
                    visual.Line(win, start=(-6.928, -5), end=(-6.411, -3.068), lineWidth=5),
                    visual.Line(win, start=(6.928, -5), end=(4.996, -4.482), lineWidth=5),
                    visual.Line(win, start=(6.928, -5), end=(6.411, -3.068), lineWidth=5)]
-well_done_label = visual.TextStim(win, "Well Done!", pos=(0, 0))
+reward_label = visual.TextStim(win, "Reward: ", pos=(0, -7))
+well_done_label = visual.TextStim(win, "Well Done!", pos=(0, -6))
 general_clock = core.Clock()
 
 # indication
@@ -159,6 +160,8 @@ for trial in trials:
         fractals[trial_end_state].draw()
         to_label.draw()
         [i.draw() for i in operation_label]
+        reward_label.setText("Reward: " + str(max(21 - step, 1)))
+        reward_label.draw()
         win.flip()
 
         # listen to response
@@ -185,6 +188,7 @@ for trial in trials:
         fractals[trial_end_state].draw()
         to_label.draw()
         [i.draw() for i in operation_label]
+        reward_label.draw()
         win.flip()
         general_clock.reset()
         while general_clock.getTime() < 0.1:
@@ -197,6 +201,7 @@ for trial in trials:
         fractals[trial_end_state].draw()
         to_label.draw()
         [i.draw() for i in operation_label]
+        reward_label.draw()
         win.flip()
 
         # make transition
@@ -214,6 +219,7 @@ for trial in trials:
             fractals[trial_end_state].draw()
             to_label.draw()
             [i.draw() for i in operation_label]
+            reward_label.draw()
             win.flip()
         fractals[now_state].setOpacity(1)
         now_state = new_state
@@ -224,14 +230,12 @@ for trial in trials:
         fractals[now_state].setPos([0, 0])
         fractals[now_state].draw()
         [i.draw() for i in operation_label]
+        reward_label.draw()
         well_done_label.setText("Well Done!")
-        well_done_label.setPos([11, 2])
+        well_done_label.setPos([0, -6])
         well_done_label.draw()
         well_done_label.setText(str(step) + " steps")
-        well_done_label.setPos([11, 0])
-        well_done_label.draw()
-        well_done_label.setText("Reward is {}. ".format(max(20 - step, 1)))
-        well_done_label.setPos([11, -2])
+        well_done_label.setPos([0, -8])
         well_done_label.draw()
         win.flip()
     win.flip()

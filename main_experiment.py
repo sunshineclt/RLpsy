@@ -11,8 +11,10 @@ from Transition import Transition
 ################################################################################
 # Monitor setup
 ################################################################################
-mon = monitors.Monitor("MBP", width=28.65, distance=57)
-mon.setSizePix([1280, 800])
+# mon = monitors.Monitor("MBP", width=28.65, distance=57)
+# mon.setSizePix([1280, 800])
+mon = monitors.Monitor("iMac", width=47.5967, distance=57)
+mon.setSizePix([1920, 1080])
 ################################################################################
 
 
@@ -70,7 +72,7 @@ event.globalKeys.add(key='q', func=exit_and_print, name='shutdown')
 ################################################################################
 from psychopy import visual
 
-win = visual.Window(fullscr=True, size=[1280, 800], screen=0, monitor=mon, units="deg")
+win = visual.Window(fullscr=True, size=[1920, 1080], screen=0, monitor=mon, units="deg")
 np.random.seed(int(exp_info["participant"]))
 random.seed(int(exp_info["participant"]))
 

@@ -105,6 +105,7 @@ operation_label = [visual.Line(win, start=(0, 8), end=(1, 6.268), lineWidth=5),
                    visual.Line(win, start=(6.928, -5), end=(6.411, -3.068), lineWidth=5)]
 reward_label = visual.TextStim(win, "Reward: ", pos=(0, -7))
 well_done_label = visual.TextStim(win, "Well Done!", pos=(0, -6))
+rest_label = visual.TextStim(win, "You can now take a break! \n Press space to start", pos=(0, 0))
 general_clock = core.Clock()
 success_sound = sound.Sound("success.wav")
 
@@ -123,7 +124,14 @@ trials = data.TrialHandler(task_order, nReps=1, extraInfo=exp_info, method="sequ
 # main trial loop
 transition = Transition()
 timesteps_record = []
+episode = 0
 for trial in trials:
+    episode += 1
+    if episode % 50 == 0:
+        rest_label.draw()
+        win.flip()
+        event.waitKeys(keyList="space")
+
     trial_start_state = trial["from"]
     trial_end_state = trial["to"]
     # fixation

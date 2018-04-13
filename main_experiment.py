@@ -63,6 +63,7 @@ event.globalKeys.clear()
 
 def exit_and_print():
     print("q pressed! exit now...")
+    print("Total Reward: ", total_reward)
     trials.saveAsWideText(data_filename + "_quit" + ".csv", delim="#")
     core.quit()
 
@@ -133,6 +134,7 @@ trials = data.TrialHandler(task_order, nReps=1, extraInfo=exp_info, method="sequ
 transition = Transition()
 timesteps_record = []
 episode = 0
+total_reward = 0
 for trial in trials:
     episode += 1
     if episode % 50 == 0:
@@ -284,6 +286,7 @@ for trial in trials:
     win.flip()
 
     # data storing
+    total_reward += max(21 - step, 1)
     trials.addData("trial_data", trial_record)
     timesteps_record.append(step)
     # if len(timesteps_record) >= 10 and np.mean(timesteps_record[-5:]) <= 3:
@@ -291,6 +294,7 @@ for trial in trials:
     print("trial length: ", step)
 
 trials.saveAsWideText(data_filename + ".csv", delim="#")
+print("Total Reward: ", total_reward)
 win.close()
 core.quit()
 ################################################################################

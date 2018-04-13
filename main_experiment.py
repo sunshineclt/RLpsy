@@ -129,6 +129,8 @@ for trial in trials:
     # fixation
     fixation_horizon.draw()
     fixation_vertical.draw()
+    # win.getMovieFrame(buffer='back')
+    # win.saveMovieFrames('fixation.png')
     win.flip()
     general_clock.reset()
     while general_clock.getTime() < 1:
@@ -140,6 +142,12 @@ for trial in trials:
     # goal
     fractals[trial_start_state].setPos([0, 0])
     fractals[trial_end_state].setPos([11, 0])
+    # from_label.draw()
+    # to_label.draw()
+    # fractals[trial_start_state].draw()
+    # fractals[trial_end_state].draw()
+    # win.getMovieFrame(buffer='back')
+    # win.saveMovieFrames('indication.png')
     general_clock.reset()
     while general_clock.getTime() < 1.5:
         from_label.draw()
@@ -165,6 +173,9 @@ for trial in trials:
         [i.draw() for i in operation_label]
         reward_label.setText("Reward: " + str(max(21 - step, 1)))
         reward_label.draw()
+        # if step == 1:
+        #     win.getMovieFrame(buffer='back')
+        #     win.saveMovieFrames('action.png')
         win.flip()
 
         # listen to response
@@ -229,6 +240,18 @@ for trial in trials:
 
     # Feedback
     success_sound.play()
+    # fractals[now_state].setPos([0, 0])
+    # fractals[now_state].draw()
+    # [i.draw() for i in operation_label]
+    # reward_label.draw()
+    # well_done_label.setText("Well Done!")
+    # well_done_label.setPos([0, -6])
+    # well_done_label.draw()
+    # well_done_label.setText(str(step) + " steps")
+    # well_done_label.setPos([0, -8])
+    # well_done_label.draw()
+    # win.getMovieFrame(buffer='back')
+    # win.saveMovieFrames('feedback.png')
     general_clock.reset()
     while general_clock.getTime() < 3:
         fractals[now_state].setPos([0, 0])

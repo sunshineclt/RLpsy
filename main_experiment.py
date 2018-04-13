@@ -35,7 +35,8 @@ exp_info = {
     'participant': '',
     'gender': ('male', 'female'),
     'age': '',
-    'left-handed': False
+    'left-handed': False,
+    'training': False
 }
 
 dlg = gui.DlgFromDict(dictionary=exp_info, title=experiment_name)
@@ -45,7 +46,10 @@ if not dlg.OK:
 exp_info["date"] = data.getDateStr()
 logging.info(exp_info)
 data_path = "data/"
-data_filename = exp_info["participant"] + "_" + exp_info["date"]
+if exp_info["training"]:
+    data_filename = exp_info["participant"] + "_training_" + exp_info["date"]
+else:
+    data_filename = exp_info["participant"] + "_" + exp_info["date"]
 data_filename = os.path.join(data_path, data_filename)
 ################################################################################
 
@@ -116,7 +120,11 @@ event.waitKeys(keyList="space")
 
 # generate randomized trial sequence
 task_order = []
-for i in range(0, 150):
+if exp_info["training"]:
+    number_of_trials = 18
+else:
+    number_of_trials = 150
+for i in range(0, number_of_trials):
     task_order.append({"from": i % 3, "to": (i + 1) % 3})
 np.random.shuffle(task_order)
 trials = data.TrialHandler(task_order, nReps=1, extraInfo=exp_info, method="sequential", originPath=data_path)

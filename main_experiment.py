@@ -125,9 +125,18 @@ if exp_info["training"]:
     number_of_trials = 18
 else:
     number_of_trials = 150
-for i in range(0, number_of_trials):
-    task_order.append({"from": i % 3, "to": (i + 1) % 3})
-np.random.shuffle(task_order)
+# if the participant's id is odd, then block, otherwise random
+if int(exp_info["participant"]) % 2 == 0:
+    for i in range(0, number_of_trials):
+        task_order.append({"from": i % 3, "to": (i + 1) % 3})
+    np.random.shuffle(task_order)
+else:
+    for i in range(0, number_of_trials // 3):
+        task_order.append({"from": 0, "to": 1})
+    for i in range(0, number_of_trials // 3):
+        task_order.append({"from": 1, "to": 2})
+    for i in range(0, number_of_trials // 3):
+        task_order.append({"from": 2, "to": 0})
 trials = data.TrialHandler(task_order, nReps=1, extraInfo=exp_info, method="sequential", originPath=data_path)
 
 # main trial loop

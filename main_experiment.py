@@ -124,21 +124,21 @@ task_order = []
 if exp_info["training"]:
     number_of_trials = 18
 else:
-    number_of_trials = 150
+    number_of_trials = 144
 # if the participant's id is odd, then block, otherwise random
 if int(exp_info["participant"]) % 2 == 0 or exp_info["training"]:
     for i in range(0, number_of_trials):
         task_order.append({"from": i % 3, "to": (i + 1) % 3})
     np.random.shuffle(task_order)
 else:
-    for i in range(0, 40):
+    for i in range(0, 36):
         task_order.append({"from": 0, "to": 1})
-    for i in range(0, 40):
+    for i in range(0, 36):
         task_order.append({"from": 1, "to": 2})
-    for i in range(0, 40):
+    for i in range(0, 36):
         task_order.append({"from": 2, "to": 0})
     temp_task = []
-    for i in range(0, 30):
+    for i in range(0, 36):
         temp_task.append({"from": i % 3, "to": (i + 1) % 3})
     np.random.shuffle(temp_task)
     task_order.extend(temp_task)
@@ -151,7 +151,7 @@ episode = 0
 total_reward = 0
 for trial in trials:
     episode += 1
-    if episode % 50 == 0:
+    if episode % 36 == 0 and episode != 144:
         rest_label.draw()
         win.flip()
         event.waitKeys(keyList="space")

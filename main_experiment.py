@@ -122,7 +122,7 @@ event.waitKeys(keyList="space")
 # generate randomized trial sequence
 task_order = []
 if exp_info["training"]:
-    number_of_trials = 18
+    number_of_trials = 15
 else:
     number_of_trials = 144
 # if the participant's id is odd, then block, otherwise random

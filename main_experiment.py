@@ -45,7 +45,7 @@ if not dlg.OK:
 
 exp_info["date"] = data.getDateStr()
 logging.info(exp_info)
-data_path = "data/"
+data_path = "raw_data/"
 if exp_info["training"]:
     data_filename = exp_info["participant"] + "_training_" + exp_info["date"]
 else:
@@ -299,7 +299,7 @@ for trial in trials:
         win.flip()
     win.flip()
 
-    # data storing
+    # raw_data storing
     total_reward += max(21 - step, 1)
     trials.addData("trial_data", trial_record)
     timesteps_record.append(step)

@@ -3,7 +3,7 @@ import json
 import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
-    rawFile = open("data/0_2018_Apr_09_2222.csv", "r")
+    rawFile = open("raw_data/0_2018_Apr_09_2222.csv", "r")
     reader = csv.DictReader(rawFile, delimiter="#")
     all_data = []
     for row in reader:

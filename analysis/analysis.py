@@ -7,18 +7,26 @@ import numpy as np
 
 from utils.savitzky_golay import savitzky_golay
 
+SAVITZKY_GOLAY_WINDOW = 15
+SAVITZKY_GOLAY_ORDER = 1
+
 
 def plot_and_calculate(data, data_name):
     data = np.array(data)
 
     randomized_data = data[::2, :]
     mean = np.mean(randomized_data, axis=0)
-    mean = savitzky_golay(mean, 25, 1)
+    mean = savitzky_golay(mean, SAVITZKY_GOLAY_WINDOW, SAVITZKY_GOLAY_ORDER)
     std = np.std(randomized_data, axis=0)
     plt.plot(mean, linewidth=3.0, label="mean")
     plt.fill_between(range(0, TRIAL_LENGTH), mean - 2 * std, mean + 2 * std, alpha=0.2)
+    if data_name == "step":
+        simulate_random_mean = np.load("random_randomized.npy")
+        plt.plot(simulate_random_mean, linewidth=3.0, label="random")
+        simulate_MF_mean = np.load("MF_randomized.npy")
+        plt.plot(simulate_MF_mean, linewidth=3.0, label="MF")
     for participant in range(0, NUMBER_OF_PARTICIPANT, 2):
-        plt.plot(savitzky_golay(data[participant], 25, 1), linewidth=0.5, label=str(participant))
+        plt.plot(savitzky_golay(data[participant], SAVITZKY_GOLAY_WINDOW, SAVITZKY_GOLAY_ORDER), linewidth=0.5, label=str(participant))
     plt.vlines(36, 0, 30)
     plt.vlines(72, 0, 30)
     plt.vlines(108, 0, 30)
@@ -34,12 +42,17 @@ def plot_and_calculate(data, data_name):
 
     block_data = data[1::2, :]
     mean = np.mean(block_data, axis=0)
-    mean = savitzky_golay(mean, 25, 1)
+    mean = savitzky_golay(mean, SAVITZKY_GOLAY_WINDOW, SAVITZKY_GOLAY_ORDER)
     std = np.std(block_data, axis=0)
     plt.plot(mean, linewidth=3.0, label="mean")
     plt.fill_between(range(0, TRIAL_LENGTH), mean - 2 * std, mean + 2 * std, alpha=0.2)
+    if data_name == "step":
+        simulate_random_mean = np.load("random_block.npy")
+        plt.plot(simulate_random_mean, linewidth=3.0, label="random")
+        simulate_MF_mean = np.load("MF_block.npy")
+        plt.plot(simulate_MF_mean, linewidth=3.0, label="MF")
     for participant in range(1, NUMBER_OF_PARTICIPANT, 2):
-        plt.plot(savitzky_golay(data[participant], 25, 1), linewidth=0.5, label=str(participant))
+        plt.plot(savitzky_golay(data[participant], SAVITZKY_GOLAY_WINDOW, SAVITZKY_GOLAY_ORDER), linewidth=0.5, label=str(participant))
     plt.vlines(36, 0, 30)
     plt.vlines(72, 0, 30)
     plt.vlines(108, 0, 30)

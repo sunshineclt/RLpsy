@@ -4,6 +4,7 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pickle
 
 from utils.savitzky_golay import savitzky_golay
 
@@ -14,6 +15,7 @@ def plot_and_calculate(data, data_name):
     mean = np.mean(data, axis=0)
     mean = savitzky_golay(mean, 25, 1)
     std = np.std(data, axis=0)
+    np.save(os.path.join(BASE_PATH, "mean.npy"), mean)
     plt.plot(mean, linewidth=3.0, label="mean")
     plt.fill_between(range(0, TRIAL_LENGTH), mean - 2 * std, mean + 2 * std, alpha=0.2)
     for participant in range(0, NUMBER_OF_PARTICIPANT, 2):

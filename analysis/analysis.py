@@ -1,39 +1,55 @@
 import csv
 import json
 import os
-import itertools
+
 import matplotlib.pyplot as plt
 import numpy as np
+
+from utils.savitzky_golay import savitzky_golay
 
 
 def plot_and_calculate(data, data_name):
     data = np.array(data)
 
-    randomized_data = data[[0, 2, 4, 6, 8]]
-    plt.plot(np.median(randomized_data, axis=0))
+    randomized_data = data[::2, :]
+    mean = np.mean(randomized_data, axis=0)
+    mean = savitzky_golay(mean, 25, 1)
+    std = np.std(randomized_data, axis=0)
+    plt.plot(mean, linewidth=3.0, label="mean")
+    plt.fill_between(range(0, TRIAL_LENGTH), mean - 2 * std, mean + 2 * std, alpha=0.2)
+    for participant in range(0, NUMBER_OF_PARTICIPANT, 2):
+        plt.plot(savitzky_golay(data[participant], 25, 1), linewidth=0.5, label=str(participant))
     plt.vlines(36, 0, 30)
     plt.vlines(72, 0, 30)
     plt.vlines(108, 0, 30)
+    plt.legend(loc='upper right')
     if data_name == "step":
         plt.ylim([0, 30])
     elif data_name == "time":
         plt.ylim([0, 50])
     else:
-        plt.ylim([0, 10])
+        plt.ylim([0, 4])
     plt.title(data_name + " under randomized condition")
     plt.show()
 
-    block_data = data[[1, 3, 5, 7, 9]]
-    plt.plot(np.median(block_data, axis=0))
+    block_data = data[1::2, :]
+    mean = np.mean(block_data, axis=0)
+    mean = savitzky_golay(mean, 25, 1)
+    std = np.std(block_data, axis=0)
+    plt.plot(mean, linewidth=3.0, label="mean")
+    plt.fill_between(range(0, TRIAL_LENGTH), mean - 2 * std, mean + 2 * std, alpha=0.2)
+    for participant in range(1, NUMBER_OF_PARTICIPANT, 2):
+        plt.plot(savitzky_golay(data[participant], 25, 1), linewidth=0.5, label=str(participant))
     plt.vlines(36, 0, 30)
     plt.vlines(72, 0, 30)
     plt.vlines(108, 0, 30)
+    plt.legend(loc='upper right')
     if data_name == "step":
         plt.ylim([0, 30])
     elif data_name == "time":
         plt.ylim([0, 50])
     else:
-        plt.ylim([0, 10])
+        plt.ylim([0, 4])
     plt.title(data_name + " under block condition")
     plt.show()
 
@@ -57,11 +73,13 @@ def plot_and_calculate(data, data_name):
 
 
 if __name__ == "__main__":
-    numer_of_participant = 10
-    all_data = [[] for _ in range(numer_of_participant)]
-    all_steps = [[] for _ in range(numer_of_participant)]
-    all_times = [[] for _ in range(numer_of_participant)]
-    all_normalized_times = [[] for _ in range(numer_of_participant)]
+    NUMBER_OF_PARTICIPANT = 18
+    TRIAL_LENGTH = 144
+
+    all_data = [[] for _ in range(NUMBER_OF_PARTICIPANT)]
+    all_steps = [[] for _ in range(NUMBER_OF_PARTICIPANT)]
+    all_times = [[] for _ in range(NUMBER_OF_PARTICIPANT)]
+    all_normalized_times = [[] for _ in range(NUMBER_OF_PARTICIPANT)]
     for lists in os.listdir("data/"):
         path = os.path.join("data/", lists)
         print("Loading ", path)
@@ -70,28 +88,29 @@ if __name__ == "__main__":
 
         rawFile = open(path, "r")
         reader = csv.DictReader(rawFile, delimiter="#")
-        trials = []
+        trials_data = []
         length = []
         for row in reader:
             trial = row["trial_data"]
             if trial != "--":
                 transformed_trial = json.loads(trial)
-                trials.append(transformed_trial)
+                trials_data.append(transformed_trial)
                 length.append(len(transformed_trial))
-        trials = trials[:144]
-        all_data[participant_id] = trials
-        plt.plot(length)
-        plt.title("Participant " + split[0] + ": ")
-        plt.vlines(36, 0, 50)
-        plt.vlines(72, 0, 50)
-        plt.vlines(108, 0, 50)
-        plt.ylim([0, 50])
-        plt.show()
+        trials_data = trials_data[:TRIAL_LENGTH]
+        all_data[participant_id] = trials_data
+
+        # plt.plot(length)
+        # plt.title("Participant " + split[0] + ": ")
+        # plt.vlines(36, 0, 50)
+        # plt.vlines(72, 0, 50)
+        # plt.vlines(108, 0, 50)
+        # plt.ylim([0, 50])
+        # plt.show()
 
         steps = []
         times = []
         normalized_times = []
-        for trial in trials:
+        for trial in trials_data:
             steps.append(len(trial))
             times.append(0)
             for step in trial:

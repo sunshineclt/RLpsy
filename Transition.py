@@ -3,7 +3,7 @@ import random
 
 
 class Transition:
-    def __init__(self, bigger_probability=0.7):
+    def __init__(self, bigger_probability=0.7, print_solution=False):
         self.bigger_probability = bigger_probability
         # transition's dimensions are state, action, .6/.3/.1 probabilities
         self.transition = np.zeros(shape=[6, 3, 3], dtype=np.int32)
@@ -12,7 +12,8 @@ class Transition:
             np.random.shuffle(dominant)
             for action in range(0, 3):
                 self.transition[state, action, 0] = dominant[action]
-                print("state: {0}, action: {1}, dominant: {2}".format(state, action, dominant[action]))
+                if print_solution:
+                    print("state: {0}, action: {1}, dominant: {2}".format(state, action, dominant[action]))
                 if random.random() < 0.5:
                     self.transition[state, action, 1] = dominant[(action + 1) % 3]
                     self.transition[state, action, 2] = dominant[(action + 2) % 3]
@@ -24,7 +25,8 @@ class Transition:
             np.random.shuffle(dominant)
             for action in range(0, 3):
                 self.transition[state, action, 0] = dominant[action]
-                print("state: {0}, action: {1}, dominant: {2}".format(state, action, dominant[action]))
+                if print_solution:
+                    print("state: {0}, action: {1}, dominant: {2}".format(state, action, dominant[action]))
                 if random.random() < 0.5:
                     self.transition[state, action, 1] = dominant[(action + 1) % 3]
                     self.transition[state, action, 2] = dominant[(action + 2) % 3]

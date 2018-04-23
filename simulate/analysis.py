@@ -73,7 +73,9 @@ def plot_and_calculate(data, data_name):
 if __name__ == "__main__":
     NUMBER_OF_PARTICIPANT = 50
     TRIAL_LENGTH = 144
-    BASE_PATH = "data/MF/block"
+    BASE_PATH = "data/MF/"
+    randomized = True
+    BASE_PATH += ("randomized" if randomized else "block")
 
     all_data = [[] for _ in range(NUMBER_OF_PARTICIPANT)]
     all_steps = [[] for _ in range(NUMBER_OF_PARTICIPANT)]
@@ -95,14 +97,6 @@ if __name__ == "__main__":
                 length.append(len(transformed_trial))
         trials_data = trials_data[:TRIAL_LENGTH]
         all_data[participant_id] = trials_data
-
-        # plt.plot(length)
-        # plt.title("Participant " + split[0] + ": ")
-        # plt.vlines(36, 0, 50)
-        # plt.vlines(72, 0, 50)
-        # plt.vlines(108, 0, 50)
-        # plt.ylim([0, 50])
-        # plt.show()
 
         steps = []
         for trial in trials_data:

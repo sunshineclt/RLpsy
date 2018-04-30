@@ -3,8 +3,13 @@ from psychopy import data
 from Transition import Transition
 import random
 
-randomized = True
+randomized = False
 for time in range(0, 50):
+
+    np.random.seed(time)
+    random.seed(time)
+
+    np.random.shuffle([1, 2, 3, 4, 5, 6])
 
     task_order = []
     number_of_trials = 144

@@ -3,9 +3,15 @@ from psychopy import data
 
 from Transition import Transition
 from utils import utils
+import random
 
 randomized = False
 for time in range(0, 50):
+
+    np.random.seed(time)
+    random.seed(time)
+
+    np.random.shuffle([1, 2, 3, 4, 5, 6])
 
     task_order = []
     number_of_trials = 144
@@ -40,7 +46,6 @@ for time in range(0, 50):
     q_value = np.zeros(shape=[3, 6, 3])
     gamma = 0.9
     alpha = 0.3
-
 
     for trial in trials:
         episode += 1
@@ -79,5 +84,6 @@ for time in range(0, 50):
         timesteps_record.append(step)
         # print("trial length: ", step)
 
-    trials.saveAsWideText("data/MF/" + ("randomized" if randomized else "block") + "/" + str(time) + "_simulate.csv", delim="#")
+    trials.saveAsWideText("data/MF/" + ("randomized" if randomized else "block") + "/" + str(time) + "_simulate.csv",
+                          delim="#")
     print("Total Reward: ", total_reward)

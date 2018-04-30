@@ -25,7 +25,7 @@ def transform_and_plot(data, data_name, save_path=None):
 if __name__ == "__main__":
     NUMBER_OF_PARTICIPANT = 36
     TRIAL_LENGTH = 144
-    SIMULATE_METHOD = "optimal"
+    SIMULATE_METHOD = "MF"
     randomized = True
     BASE_PATH = os.path.join("data", SIMULATE_METHOD, "randomized" if randomized else "block")
 
@@ -67,14 +67,17 @@ if __name__ == "__main__":
         all_optimal_probabilities_outer[participant_id] = result[1]["outer"]
         all_optimal_probabilities_last[participant_id] = result[1]["last"]
 
-    transform_and_plot(all_steps, "step",
-                       save_path=SIMULATE_METHOD + "_" + ("randomized" if randomized else "block") + "_step.npy")
-    transform_and_plot(all_optimal_probabilities, "optimal",
-                       save_path=SIMULATE_METHOD + "_" + ("randomized" if randomized else "block") + "_optimal.npy")
-    transform_and_plot(all_optimal_probabilities_inner, "optimal_inner",
-                       save_path=SIMULATE_METHOD + "_" + ("randomized" if randomized else "block") + "_optimal_inner.npy")
-    transform_and_plot(all_optimal_probabilities_outer, "optimal_outer",
-                       save_path=SIMULATE_METHOD + "_" + ("randomized" if randomized else "block") + "_optimal_outer.npy")
-    transform_and_plot(all_optimal_probabilities_last, "optimal_last",
-                       save_path=SIMULATE_METHOD + "_" + ("randomized" if randomized else "block") + "_optimal_last.npy")
+    # transform_and_plot(all_steps, "step",
+    #                    save_path=SIMULATE_METHOD + "_" + ("randomized" if randomized else "block") + "_step.npy")
+    # transform_and_plot(all_optimal_probabilities, "optimal",
+    #                    save_path=SIMULATE_METHOD + "_" + ("randomized" if randomized else "block") + "_optimal.npy")
+    # transform_and_plot(all_optimal_probabilities_inner, "optimal_inner",
+    #                    save_path=SIMULATE_METHOD + "_" + ("randomized" if randomized else "block") + "_optimal_inner.npy")
+    # transform_and_plot(all_optimal_probabilities_outer, "optimal_outer",
+    #                    save_path=SIMULATE_METHOD + "_" + ("randomized" if randomized else "block") + "_optimal_outer.npy")
+    # transform_and_plot(all_optimal_probabilities_last, "optimal_last",
+    #                    save_path=SIMULATE_METHOD + "_" + ("randomized" if randomized else "block") + "_optimal_last.npy")、
 
+    for participant in range(NUMBER_OF_PARTICIPANT):
+        if np.sum(np.array(all_optimal_probabilities[participant]) < 0.2) > 20:
+            print(participant)

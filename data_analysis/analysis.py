@@ -6,6 +6,9 @@ import numpy as np
 
 from data_analysis.analysis_optimal import optimal_probability
 from utils.draw import draw_metrics
+import pandas
+from pandas.tools import plotting
+from statsmodels.formula.api import ols
 
 
 def transform_and_plot(data, data_name):
@@ -44,6 +47,8 @@ if __name__ == "__main__":
     all_optimal_probabilities_inner = [[] for _ in range(NUMBER_OF_PARTICIPANT)]
     all_optimal_probabilities_outer = [[] for _ in range(NUMBER_OF_PARTICIPANT)]
     all_optimal_probabilities_last = [[] for _ in range(NUMBER_OF_PARTICIPANT)]
+    optimal_data_frame = pandas.DataFrame(
+        columns=["optimal_p", "optimal_inner", "optimal_outer", "optimal_last", "step", "block", "condition", "participant"])
 
     for lists in os.listdir("data/"):
         path = os.path.join("data/", lists)
@@ -84,11 +89,30 @@ if __name__ == "__main__":
         all_optimal_probabilities_inner[participant_id] = result[1]["inner"]
         all_optimal_probabilities_outer[participant_id] = result[1]["outer"]
         all_optimal_probabilities_last[participant_id] = result[1]["last"]
+        for trial in range(TRIAL_LENGTH):
+            block = trial // 36
+            timestep = trial % 36
+            optimal_data_frame = optimal_data_frame.append({"optimal_p": result[0][trial],
+                                                            "optimal_inner": result[1]["inner"][trial],
+                                                            "optimal_outer": result[1]["outer"][trial],
+                                                            "optimal_last": result[1]["last"][trial],
+                                                            "step": timestep,
+                                                            "block": block,
+                                                            "condition": (
+                                                                "random" if participant_id % 2 == 0 else "block"),
+                                                            "participant": participant_id},
+                                                           ignore_index=True)
 
-    transform_and_plot(all_steps, "step")
-    transform_and_plot(all_times, "time")
-    transform_and_plot(all_normalized_times, "normalized_time")
-    transform_and_plot(all_optimal_probabilities, "optimal")
-    transform_and_plot(all_optimal_probabilities_inner, "optimal_inner")
-    transform_and_plot(all_optimal_probabilities_outer, "optimal_outer")
-    transform_and_plot(all_optimal_probabilities_last, "optimal_last")
+    # transform_and_plot(all_steps, "step")
+    # transform_and_plot(all_times, "time")
+    # transform_and_plot(all_normalized_times, "normalized_time")
+    # transform_and_plot(all_optimal_probabilities, "optimal")
+    # transform_and_plot(all_optimal_probabilities_inner, "optimal_inner")
+    # transform_and_plot(all_optimal_probabilities_outer, "optimal_outer")
+    # transform_and_plot(all_optimal_probabilities_last, "optimal_last")
+
+    # for participant in range(NUMBER_OF_PARTICIPANT):
+    #     if np.sum(np.array(all_optimal_probabilities[participant]) < 0.2) > 20:
+    #         print(participant)
+
+    optimal_data_frame.to_csv("optimal_data_frame.csv")

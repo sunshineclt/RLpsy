@@ -157,6 +157,5 @@ crashlytics-build.properties
 fabric.properties
 
 # My Own
-raw_data/
 PsychoPyManual.pdf
 .idea/inspectionProfiles/profiles_settings.xml

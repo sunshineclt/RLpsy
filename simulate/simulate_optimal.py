@@ -1,9 +1,11 @@
 import numpy as np
 from psychopy import data
 from Transition import Transition
+from data_analysis.analysis_optimal import calculate_optimal
 import random
 
 randomized = False
+optimal_reward = 0
 for time in range(0, 50):
 
     np.random.seed(time)
@@ -36,6 +38,7 @@ for time in range(0, 50):
     trials = data.TrialHandler(task_order, nReps=1, method="sequential", originPath=".")
 
     transition = Transition()
+    optimal = calculate_optimal(transition)
     timesteps_record = []
     episode = 0
     total_reward = 0
@@ -53,7 +56,7 @@ for time in range(0, 50):
             # print("now: ", now_state)
             step += 1
 
-            action = random.randint(0, 2)
+            action = optimal[now_state, trial_end_state]
 
             new_state = transition.step(now_state, action)
             trial_record.append([now_state, action, new_state])
@@ -65,5 +68,8 @@ for time in range(0, 50):
         timesteps_record.append(step)
         # print("trial length: ", step)
 
-    trials.saveAsWideText("data/random/" + ("randomized" if randomized else "block") + "/" + str(time) + "_simulate.csv", delim="#")
+    trials.saveAsWideText("data/optimal/" + ("randomized" if randomized else "block") + "/" + str(time) + "_simulate.csv", delim="#")
     print("Total Reward: ", total_reward)
+    optimal_reward += total_reward
+
+print("Optimal Reward: ", optimal_reward)

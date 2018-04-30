@@ -6,7 +6,8 @@ from utils import utils
 import random
 
 randomized = False
-for time in range(0, 50):
+repeat = 36
+for time in range(0, 36):
 
     np.random.seed(time)
     random.seed(time)

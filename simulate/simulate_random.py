@@ -4,7 +4,8 @@ from Transition import Transition
 import random
 
 randomized = False
-for time in range(0, 50):
+repeat = 36
+for time in range(0, repeat):
 
     np.random.seed(time)
     random.seed(time)

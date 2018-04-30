@@ -15,17 +15,17 @@ def transform_and_plot(data, data_name, save_path=None):
                  "%s under %s condition in simulated algo %s" % (data_name, ("randomized" if randomized else "block"), SIMULATE_METHOD),
                  smooth=True,
                  trial_length=TRIAL_LENGTH,
-                 save_npy=False,
+                 save_npy=True,
                  save_path=save_path,
                  draw_individual=True,
                  annotate_block_mean=True,
-                 show=True)
+                 show=False)
 
 
 if __name__ == "__main__":
-    NUMBER_OF_PARTICIPANT = 50
+    NUMBER_OF_PARTICIPANT = 36
     TRIAL_LENGTH = 144
-    SIMULATE_METHOD = "MB"
+    SIMULATE_METHOD = "optimal"
     randomized = True
     BASE_PATH = os.path.join("data", SIMULATE_METHOD, "randomized" if randomized else "block")
 
@@ -34,12 +34,15 @@ if __name__ == "__main__":
     all_optimal_probabilities = [[] for _ in range(NUMBER_OF_PARTICIPANT)]
     all_optimal_probabilities_inner = [[] for _ in range(NUMBER_OF_PARTICIPANT)]
     all_optimal_probabilities_outer = [[] for _ in range(NUMBER_OF_PARTICIPANT)]
+    all_optimal_probabilities_last = [[] for _ in range(NUMBER_OF_PARTICIPANT)]
 
     for lists in os.listdir(BASE_PATH):
         path = os.path.join(BASE_PATH, lists)
         print("Loading ", path)
         split = lists.split("_")
         participant_id = int(split[0])
+        if participant_id >= NUMBER_OF_PARTICIPANT:
+            continue
 
         rawFile = open(path, "r")
         reader = csv.DictReader(rawFile, delimiter="#")
@@ -62,6 +65,7 @@ if __name__ == "__main__":
         all_optimal_probabilities[participant_id] = result[0]
         all_optimal_probabilities_inner[participant_id] = result[1]["inner"]
         all_optimal_probabilities_outer[participant_id] = result[1]["outer"]
+        all_optimal_probabilities_last[participant_id] = result[1]["last"]
 
     transform_and_plot(all_steps, "step",
                        save_path=SIMULATE_METHOD + "_" + ("randomized" if randomized else "block") + "_step.npy")
@@ -71,3 +75,6 @@ if __name__ == "__main__":
                        save_path=SIMULATE_METHOD + "_" + ("randomized" if randomized else "block") + "_optimal_inner.npy")
     transform_and_plot(all_optimal_probabilities_outer, "optimal_outer",
                        save_path=SIMULATE_METHOD + "_" + ("randomized" if randomized else "block") + "_optimal_outer.npy")
+    transform_and_plot(all_optimal_probabilities_last, "optimal_last",
+                       save_path=SIMULATE_METHOD + "_" + ("randomized" if randomized else "block") + "_optimal_last.npy")
+

@@ -15,7 +15,7 @@ def transform_and_plot(data, data_name):
     draw_metrics(randomized_data,
                  data_name,
                  "%s under %s condition in participants" % (data_name, "randomized"),
-                 extra_data_names=["MF_randomized", "optimal_randomized", "random_randomized"],
+                 extra_data_names=["MF_randomized", "optimal_randomized", "random_randomized", "MB_randomized"],
                  smooth=True,
                  save_npy=False,
                  draw_individual=True,
@@ -25,7 +25,7 @@ def transform_and_plot(data, data_name):
     draw_metrics(block_data,
                  data_name,
                  "%s under %s condition in participants" % (data_name, "block"),
-                 extra_data_names=["MF_block", "optimal_block", "random_block"],
+                 extra_data_names=["MF_block", "optimal_block", "random_block", "MB_block"],
                  smooth=True,
                  save_npy=False,
                  draw_individual=True,
@@ -43,6 +43,7 @@ if __name__ == "__main__":
     all_optimal_probabilities = [[] for _ in range(NUMBER_OF_PARTICIPANT)]
     all_optimal_probabilities_inner = [[] for _ in range(NUMBER_OF_PARTICIPANT)]
     all_optimal_probabilities_outer = [[] for _ in range(NUMBER_OF_PARTICIPANT)]
+    all_optimal_probabilities_last = [[] for _ in range(NUMBER_OF_PARTICIPANT)]
 
     for lists in os.listdir("data/"):
         path = os.path.join("data/", lists)
@@ -82,6 +83,7 @@ if __name__ == "__main__":
         all_optimal_probabilities[participant_id] = result[0]
         all_optimal_probabilities_inner[participant_id] = result[1]["inner"]
         all_optimal_probabilities_outer[participant_id] = result[1]["outer"]
+        all_optimal_probabilities_last[participant_id] = result[1]["last"]
 
     transform_and_plot(all_steps, "step")
     transform_and_plot(all_times, "time")
@@ -89,3 +91,4 @@ if __name__ == "__main__":
     transform_and_plot(all_optimal_probabilities, "optimal")
     transform_and_plot(all_optimal_probabilities_inner, "optimal_inner")
     transform_and_plot(all_optimal_probabilities_outer, "optimal_outer")
+    transform_and_plot(all_optimal_probabilities_last, "optimal_last")

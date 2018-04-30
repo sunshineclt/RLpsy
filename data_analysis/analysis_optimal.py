@@ -36,25 +36,36 @@ def optimal_probability(seed, trials, is_simulate=False, is_randomized=False):
                 optimal[state, destination] = action_should_choose[state, destination + 3]
 
     optimal_ps = []
-    optimal_ps_grouped = {"inner": [], "outer": []}
+    optimal_ps_grouped = {"inner": [], "outer": [], "last": []}
     for trial in trials:
         dest = trial[-1][2]
         optimal_count = 0
         optimal_inner_count = 0
+        optimal_last_step_count = 0
         inner_count = 0
+        last_step_count = 0
         for step in trial:
             if step[1] == optimal[step[0], dest]:
                 optimal_count += 1
                 if step[0] > 2:
                     optimal_inner_count += 1
+                if result_state[step[0], step[1]] == dest:
+                    optimal_last_step_count += 1
             if step[0] > 2:
                 inner_count += 1
+            if dest in result_state[step[0]]:
+                last_step_count += 1
 
         optimal_p = optimal_count / len(trial)
         optimal_ps.append(optimal_p)
-        optimal_ps_grouped["inner"].append(optimal_inner_count / inner_count)
+        if inner_count - last_step_count == 0:
+            optimal_ps_grouped["inner"].append(1)
+        else:
+            optimal_ps_grouped["inner"].append((optimal_inner_count - optimal_last_step_count) /
+                                               (inner_count - last_step_count))
         optimal_ps_grouped["outer"].append((optimal_count - optimal_inner_count) /
                                            (len(trial) - inner_count))
+        optimal_ps_grouped["last"].append(optimal_last_step_count / last_step_count)
 
     return optimal_ps, optimal_ps_grouped
 

@@ -15,18 +15,18 @@ def transform_and_plot(data, data_name, save_path=None):
                  "%s under %s condition in simulated algo %s" % (data_name, ("randomized" if randomized else "block"), SIMULATE_METHOD),
                  smooth=True,
                  trial_length=TRIAL_LENGTH,
-                 save_npy=True,
+                 save_npy=False,
                  save_path=save_path,
                  draw_individual=True,
                  annotate_block_mean=True,
-                 show=False)
+                 show=True)
 
 
 if __name__ == "__main__":
     NUMBER_OF_PARTICIPANT = 50
     TRIAL_LENGTH = 144
-    SIMULATE_METHOD = "optimal"
-    randomized = False
+    SIMULATE_METHOD = "MB"
+    randomized = True
     BASE_PATH = os.path.join("data", SIMULATE_METHOD, "randomized" if randomized else "block")
 
     all_data = [[] for _ in range(NUMBER_OF_PARTICIPANT)]

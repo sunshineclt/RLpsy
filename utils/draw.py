@@ -3,7 +3,7 @@ import numpy as np
 
 from utils.savitzky_golay import savitzky_golay
 
-SAVITZKY_GOLAY_WINDOW = 9
+SAVITZKY_GOLAY_WINDOW = 5
 SAVITZKY_GOLAY_ORDER = 1
 
 
@@ -32,6 +32,8 @@ def draw_metrics(data,
     if extra_data_names and (data_name == "step" or data_name.find("optimal") != -1):
         for extra_data_name in extra_data_names:
             temp_mean = np.load("simulate_transformed_data/" + extra_data_name + "_" + data_name + ".npy")
+            if smooth:
+                temp_mean = savitzky_golay(temp_mean, SAVITZKY_GOLAY_WINDOW, SAVITZKY_GOLAY_ORDER)
             plt.plot(temp_mean, linewidth=3.0, label=extra_data_name.split("_")[0])
 
     if draw_individual:

@@ -4,9 +4,12 @@ from psychopy import data
 from Transition import Transition
 from utils import utils
 import random
+import os
 
-randomized = False
+randomized = True
 repeat = 36
+gamma = 0.9
+alpha = 0.2
 for time in range(0, repeat):
 
     np.random.seed(time)
@@ -45,8 +48,7 @@ for time in range(0, repeat):
 
     # model and parameters
     q_value = np.zeros(shape=[3, 6, 3])
-    gamma = 0.9
-    alpha = 0.3
+
 
     for trial in trials:
         episode += 1
@@ -85,6 +87,8 @@ for time in range(0, repeat):
         timesteps_record.append(step)
         # print("trial length: ", step)
 
-    trials.saveAsWideText("data/MF/" + ("randomized" if randomized else "block") + "/" + str(time) + "_simulate.csv",
+    if not os.path.exists("data/MF/%.1f/" % alpha + ("randomized" if randomized else "block")):
+        os.makedirs("data/MF/%.1f/" % alpha + ("randomized" if randomized else "block"))
+    trials.saveAsWideText("data/MF/%.1f/" % alpha + ("randomized" if randomized else "block") + "/" + str(time) + "_simulate.csv",
                           delim="#")
     print("Total Reward: ", total_reward)

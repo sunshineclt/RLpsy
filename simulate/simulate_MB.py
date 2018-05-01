@@ -9,7 +9,7 @@ import os
 randomized = False
 repeat = 36
 gamma = 0.9
-eta = 0.9
+eta = 0.7
 for time in range(0, 36):
 
     np.random.seed(time)
@@ -71,7 +71,7 @@ for time in range(0, 36):
                 for state in range(6):
                     for action in range(3):
                         for state_1 in range(6):
-                            new_q_value[state, action] += trans_prob[state, action, state_1] * (gamma * r[state_1] + np.max(q_value[state_1]))
+                            new_q_value[state, action] += trans_prob[state, action, state_1] * (r[state_1] + gamma * np.max(q_value[state_1]))
                 q_value = new_q_value
             # print(np.max(q_value))
 

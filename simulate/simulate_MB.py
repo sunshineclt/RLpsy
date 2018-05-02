@@ -113,5 +113,3 @@ if __name__ == "__main__":
                                 eta=eta_value,
                                 tau=tau_value,
                                 forward_planning=forward_planning_value)
-
-

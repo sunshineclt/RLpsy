@@ -1,3 +1,5 @@
+import datetime
+import multiprocessing as mp
 import os
 import random
 import shutil
@@ -10,10 +12,10 @@ from utils import utils
 
 
 def simulate_MF(randomized=True,
-                repeat=50,
-                gamma=0.9,
                 alpha=0.1,
-                tau=1):
+                tau=1,
+                repeat=50,
+                gamma=0.9):
 
     dir_path = "data/MF/alpha%.1f_tau%.1f/" % (alpha, tau) + ("randomized" if randomized else "block") + "/"
     if not os.path.isdir(dir_path):
@@ -103,9 +105,18 @@ def simulate_MF(randomized=True,
 
 
 if __name__ == "__main__":
-    for alpha_value in [i / 10 for i in range(1, 11)]:
+    time_stamp = datetime.datetime.now()
+    print("start time: ", time_stamp.strftime('%H:%M:%S'))
+    condition = []
+    for alpha_value in [0.1, 0.3, 0.5, 0.7, 0.9, 1.0]:
         for randomized_value in [True, False]:
             for tau_value in [0.1, 0.5, 1, 5, 10, 100]:
-                simulate_MF(randomized=randomized_value,
-                            alpha=alpha_value,
-                            tau=tau_value)
+                condition.append((randomized_value, alpha_value, tau_value))
+    time_stamp = datetime.datetime.now()
+    print("start execution time: ", time_stamp.strftime('%H:%M:%S'))
+    pool = mp.Pool()
+    pool.starmap(simulate_MF, condition)
+    pool.close()
+    print("main process finished")
+    time_stamp = datetime.datetime.now()
+    print("end time: ", time_stamp.strftime('%H:%M:%S'))

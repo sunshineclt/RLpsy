@@ -21,14 +21,14 @@ if __name__ == "__main__":
     NUMBER_OF_PARTICIPANT = 36
     TRIAL_LENGTH = 144
     SIMULATE_METHOD = "MF"
-    randomized = False
+    randomized = True
 
     all_all_steps = {}
     all_all_optimal_probabilities = {}
     all_all_optimal_probabilities_inner = {}
     all_all_optimal_probabilities_outer = {}
     all_all_optimal_probabilities_last = {}
-    for alpha in [i / 10 for i in range(1, 10, 4)]:
+    for alpha in [i / 10 for i in range(1, 11, 1)]:
 
         BASE_PATH = os.path.join("data", SIMULATE_METHOD, str(alpha), "randomized" if randomized else "block")
 

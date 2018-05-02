@@ -9,7 +9,7 @@ import os
 randomized = False
 repeat = 36
 gamma = 0.9
-eta = 0.7
+eta = 0.1
 for time in range(0, 36):
 
     np.random.seed(time)

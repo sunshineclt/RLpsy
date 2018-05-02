@@ -6,10 +6,10 @@ from utils import utils
 import random
 import os
 
-randomized = True
+randomized = False
 repeat = 36
 gamma = 0.9
-alpha = 0.2
+alpha = 1
 for time in range(0, repeat):
 
     np.random.seed(time)

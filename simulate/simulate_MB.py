@@ -1,19 +1,29 @@
+import os
+import random
+import shutil
+
 import numpy as np
 from psychopy import data
 
 from Transition import Transition
 from utils import utils
-import random
-import os
-import shutil
 
 
 def simulate_MB(randomized=True,
-                repeat=36,
+                repeat=50,
                 gamma=0.9,
                 eta=0.1,
                 tau=1,
                 forward_planning=6):
+
+    dir_path = "data/MB/eta%.1f_tau%.1f_forward%d/" % (eta, tau, forward_planning) + (
+        "randomized" if randomized else "block") + "/"
+    if not os.path.isdir(dir_path):
+        os.makedirs(dir_path)
+    else:
+        shutil.rmtree(dir_path)
+        os.makedirs(dir_path)
+
     for time in range(0, repeat):
 
         np.random.seed(time)
@@ -48,14 +58,6 @@ def simulate_MB(randomized=True,
         episode = 0
         total_reward = 0
 
-        dir_path = "data/MB/eta%.1f_tau%.1f_forward%d/" % (eta, tau, forward_planning) + (
-            "randomized" if randomized else "block") + "/"
-        if not os.path.isdir(dir_path):
-            os.makedirs(dir_path)
-        else:
-            shutil.rmtree(dir_path)
-            os.makedirs(dir_path)
-
         # model and parameters
         trans_prob = np.zeros(shape=[6, 3, 6]) + 1 / 3
 
@@ -72,7 +74,6 @@ def simulate_MB(randomized=True,
             r = np.zeros(shape=[6]) - 1
             r[trial_end_state] = 20
             while now_state != trial_end_state:
-                # print("now: ", now_state)
                 step += 1
 
                 q_value = np.zeros(shape=[6, 3])
@@ -85,7 +86,6 @@ def simulate_MB(randomized=True,
                             #     new_q_value[state, action] += trans_prob[state, action, state_1] * (
                             #                 r[state_1] + gamma * np.max(q_value[state_1]))
                     q_value = new_q_value
-                # print(np.max(q_value))
 
                 action = utils.random_pick([0, 1, 2],
                                            utils.softmax(np.array([q_value[now_state, 0],
@@ -108,7 +108,10 @@ def simulate_MB(randomized=True,
             timesteps_record.append(step)
 
         trials.saveAsWideText(dir_path + "/" + str(time) + "_simulate.csv", delim="#")
-        print("eta: %.1f, tau: %.1f, forward: %d, times: %d, Total Reward: %d" % (eta, tau, forward_planning, time, total_reward))
+        print("eta: %.1f, tau: %.1f, forward: %d, %s, times: %d, Total Reward: %d" %
+              (eta, tau, forward_planning,
+               ("randomized" if randomized else "block"),
+               time, total_reward))
 
 
 if __name__ == "__main__":

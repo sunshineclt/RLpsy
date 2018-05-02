@@ -73,33 +73,34 @@ def draw_different_params(data,
                           title,
                           smooth=True,
                           trial_length=144,
-                          show=True):
-    data_len = len(data["0.1"])
+                          show=True,
+                          numer_of_participant=50):
 
-    for index, key in enumerate(data):
-        one_param_data = data[key]
-        mean = np.mean(one_param_data, axis=0)
-        std = np.std(one_param_data, axis=0) / np.sqrt(data_len)
+    for index1, eta in enumerate(data):
+        for index2, tau in enumerate(data[index1]):
+            one_param_data = data[index1][index2]
+            mean = np.mean(one_param_data, axis=0)
+            std = np.std(one_param_data, axis=0) / np.sqrt(numer_of_participant)
 
-        if smooth:
-            mean = savitzky_golay(mean, SAVITZKY_GOLAY_WINDOW, SAVITZKY_GOLAY_ORDER)
-        plt.plot(mean, linewidth=3.0, label=key)
-        plt.fill_between(range(0, trial_length), mean - 2 * std, mean + 2 * std, alpha=0.2)
+            if smooth:
+                mean = savitzky_golay(mean, SAVITZKY_GOLAY_WINDOW, SAVITZKY_GOLAY_ORDER)
+            plt.plot(mean, linewidth=3.0, label=key)
+            plt.fill_between(range(0, trial_length), mean - 2 * std, mean + 2 * std, alpha=0.2)
 
-        plt.vlines(36, 0, 30)
-        plt.vlines(72, 0, 30)
-        plt.vlines(108, 0, 30)
-        if data_name == "step":
-            plt.ylim([0, 30])
-        elif data_name == "time":
-            plt.ylim([0, 50])
-        elif data_name == "normalized_time":
-            plt.ylim([0, 4])
-        elif data_name.find("optimal") != -1:
-            plt.ylim([0, 1])
-        plt.legend()
-        plt.title(title)
+            plt.vlines(36, 0, 30)
+            plt.vlines(72, 0, 30)
+            plt.vlines(108, 0, 30)
+            if data_name == "step":
+                plt.ylim([0, 30])
+            elif data_name == "time":
+                plt.ylim([0, 50])
+            elif data_name == "normalized_time":
+                plt.ylim([0, 4])
+            elif data_name.find("optimal") != -1:
+                plt.ylim([0, 1])
+            plt.legend()
+            plt.title(title)
 
-    if show:
-        plt.show()
+        if show:
+            plt.show()
 

@@ -3,19 +3,9 @@ import json
 import os
 
 import numpy as np
-import pandas as pd
 
 from data_analysis.analysis_optimal import optimal_probability
 from utils.draw import draw_different_params
-
-
-def transform_and_plot(data, data_name):
-    draw_different_params(data,
-                          data_name,
-                          "%s under %s condition in simulated algo %s" % (data_name, ("randomized" if randomized else "block"), SIMULATE_METHOD),
-                          smooth=True,
-                          trial_length=TRIAL_LENGTH,
-                          show=True)
 
 
 if __name__ == "__main__":
@@ -25,12 +15,12 @@ if __name__ == "__main__":
     randomized = True
 
     all_reduction = {}
-    for eta in [0.1, 0.3, 0.5, 0.7, 0.9, 1.0]:
-        all_reduction[eta] = {}
-        for tau in [0.1, 0.5, 1, 5, 10, 100]:
-            all_reduction[eta][tau] = {}
-            for forward_planning in [1, 2, 3, 4, 5, 6, 7]:
-                all_reduction[eta][tau][forward_planning] = [[] for _ in range(NUMBER_OF_PARTICIPANT)]
+    for forward_planning in [1, 2, 3, 4, 5, 6, 7]:
+        all_reduction[forward_planning] = {}
+        for eta in [0.1, 0.3, 0.5, 0.7, 0.9, 1.0]:
+            all_reduction[forward_planning][eta] = {}
+            for tau in [0.1, 0.5, 1, 5, 10, 100]:
+                all_reduction[forward_planning][eta][tau] = [[] for _ in range(NUMBER_OF_PARTICIPANT)]
                 BASE_PATH = "data/MB/eta%.1f_tau%.1f_forward%d/" % (eta, tau, forward_planning) + (
                     "randomized" if randomized else "block") + "/"
 
@@ -58,13 +48,16 @@ if __name__ == "__main__":
                     for trial in trials_data:
                         steps.append(len(trial))
 
-                    all_reduction["steps"].append(steps)
-                    all_reduction
-                    all_reduction["participant"].append(steps)
-                    result = optimal_probability(participant_id, trials_data, is_simulate=True, is_randomized=randomized)
-                    all_reduction["optimal"] = result[0]
-                    all_reduction["optimal_inner"] = result[1]["inner"]
-                    all_reduction["optimal_outer"] = result[1]["outer"]
-                    all_reduction["optimal_last"] = result[1]["last"]
+                    all_reduction[forward_planning][eta][tau][participant_id].append(steps)
+                    # result = optimal_probability(participant_id, trials_data, is_simulate=True, is_randomized=randomized)
+                    # all_reduction["optimal"] = result[0]
+                    # all_reduction["optimal_inner"] = result[1]["inner"]
+                    # all_reduction["optimal_outer"] = result[1]["outer"]
+                    # all_reduction["optimal_last"] = result[1]["last"]
 
-    data_frame = pd.DataFrame(all_reduction)
+    draw_different_params(all_reduction[1],
+                          "step",
+                          "step under %s condition in simulated algo %s forward 1" % (("randomized" if randomized else "block"), SIMULATE_METHOD),
+                          smooth=True,
+                          trial_length=TRIAL_LENGTH,
+                          show=True)

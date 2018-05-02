@@ -8,7 +8,7 @@ from data_analysis.analysis_optimal import optimal_probability
 if __name__ == "__main__":
     NUMBER_OF_PARTICIPANT = 50
     TRIAL_LENGTH = 144
-    SIMULATE_METHOD = "MF_forget"
+    SIMULATE_METHOD = "MF"
     randomized = False
 
     all_reduction = {}
@@ -16,7 +16,7 @@ if __name__ == "__main__":
         all_reduction[alpha] = {}
         for tau in [0.1, 0.5, 1, 5, 10, 100]:
             all_reduction[alpha][tau] = [[] for _ in range(NUMBER_OF_PARTICIPANT)]
-            BASE_PATH = "data/MF_forget/alpha%.1f_tau%.1f/" % (alpha, tau) + ("randomized" if randomized else "block") + "/"
+            BASE_PATH = "data/%s/alpha%.1f_tau%.1f/" % (SIMULATE_METHOD, alpha, tau) + ("randomized" if randomized else "block") + "/"
 
             for lists in os.listdir(BASE_PATH):
                 path = os.path.join(BASE_PATH, lists)
@@ -50,5 +50,5 @@ if __name__ == "__main__":
                 # all_reduction[eta][tau][participant_id] = result[1]["outer"]
                 # all_reduction[eta][tau][participant_id] = result[1]["last"]
 
-    with open("optimal_MF_forget_block.pkl", "wb") as f:
+    with open("optimal_%s_block.pkl" % SIMULATE_METHOD, "wb") as f:
         pickle.dump(all_reduction, f)

@@ -14,4 +14,5 @@ def random_pick(some_list, probabilities):
 
 def softmax(x, tau=1):
     """Compute softmax values for each sets of scores in x."""
-    return np.exp(x / tau) / np.sum(np.exp(x / tau), axis=0)
+    temp = x - np.max(x)
+    return np.exp(temp / tau) / np.sum(np.exp(temp / tau), axis=0)

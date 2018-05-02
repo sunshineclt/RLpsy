@@ -17,7 +17,7 @@ def simulate_MF(randomized=True,
                 repeat=50,
                 gamma=0.9):
 
-    dir_path = "data/MF/alpha%.1f_tau%.1f/" % (alpha, tau) + ("randomized" if randomized else "block") + "/"
+    dir_path = "data/MF_forget/alpha%.1f_tau%.1f/" % (alpha, tau) + ("randomized" if randomized else "block") + "/"
     if not os.path.isdir(dir_path):
         os.makedirs(dir_path)
     else:
@@ -88,6 +88,7 @@ def simulate_MF(randomized=True,
                     q_value[trial_end_state][trial_record[-1][0], trial_record[-1][1]] += alpha * delta
 
                 now_state = new_state
+                q_value *= 0.99
 
             target = max(21 - step, 1)
             delta = target - q_value[trial_end_state][trial_record[-1][0], trial_record[-1][1]]

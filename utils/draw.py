@@ -76,15 +76,17 @@ def draw_different_params(data,
                           show=True,
                           numer_of_participant=50):
 
+    plt.figure(figsize=[40, 6], dpi=80)
     for index1, eta in enumerate(data):
-        for index2, tau in enumerate(data[index1]):
-            one_param_data = data[index1][index2]
+        plt.subplot(1, 6, index1 + 1)
+        for index2, tau in enumerate(data[eta]):
+            one_param_data = data[eta][tau]
             mean = np.mean(one_param_data, axis=0)
             std = np.std(one_param_data, axis=0) / np.sqrt(numer_of_participant)
 
             if smooth:
                 mean = savitzky_golay(mean, SAVITZKY_GOLAY_WINDOW, SAVITZKY_GOLAY_ORDER)
-            plt.plot(mean, linewidth=3.0, label=key)
+            plt.plot(mean, linewidth=3.0, label="eta: %.1f, tau: %.1f" % (eta, tau))
             plt.fill_between(range(0, trial_length), mean - 2 * std, mean + 2 * std, alpha=0.2)
 
             plt.vlines(36, 0, 30)
@@ -98,9 +100,10 @@ def draw_different_params(data,
                 plt.ylim([0, 4])
             elif data_name.find("optimal") != -1:
                 plt.ylim([0, 1])
-            plt.legend()
-            plt.title(title)
+        plt.legend()
+        plt.title(title)
 
-        if show:
-            plt.show()
+    plt.tight_layout()
+    if show:
+        plt.show()
 

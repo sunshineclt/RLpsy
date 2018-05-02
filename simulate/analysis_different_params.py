@@ -3,6 +3,7 @@ import json
 import os
 
 import numpy as np
+import pandas as pd
 
 from data_analysis.analysis_optimal import optimal_probability
 from utils.draw import draw_different_params
@@ -18,66 +19,52 @@ def transform_and_plot(data, data_name):
 
 
 if __name__ == "__main__":
-    NUMBER_OF_PARTICIPANT = 36
+    NUMBER_OF_PARTICIPANT = 50
     TRIAL_LENGTH = 144
-    SIMULATE_METHOD = "MF"
+    SIMULATE_METHOD = "MB"
     randomized = True
 
-    all_all_steps = {}
-    all_all_optimal_probabilities = {}
-    all_all_optimal_probabilities_inner = {}
-    all_all_optimal_probabilities_outer = {}
-    all_all_optimal_probabilities_last = {}
-    for alpha in [i / 10 for i in range(1, 11, 1)]:
+    all_reduction = {}
+    for eta in [0.1, 0.3, 0.5, 0.7, 0.9, 1.0]:
+        all_reduction[eta] = {}
+        for tau in [0.1, 0.5, 1, 5, 10, 100]:
+            all_reduction[eta][tau] = {}
+            for forward_planning in [1, 2, 3, 4, 5, 6, 7]:
+                all_reduction[eta][tau][forward_planning] = [[] for _ in range(NUMBER_OF_PARTICIPANT)]
+                BASE_PATH = "data/MB/eta%.1f_tau%.1f_forward%d/" % (eta, tau, forward_planning) + (
+                    "randomized" if randomized else "block") + "/"
 
-        BASE_PATH = os.path.join("data", SIMULATE_METHOD, str(alpha), "randomized" if randomized else "block")
+                for lists in os.listdir(BASE_PATH):
+                    path = os.path.join(BASE_PATH, lists)
+                    print("Loading ", path)
+                    split = lists.split("_")
+                    participant_id = int(split[0])
+                    if participant_id >= NUMBER_OF_PARTICIPANT:
+                        continue
 
-        all_data = [[] for _ in range(NUMBER_OF_PARTICIPANT)]
-        all_steps = [[] for _ in range(NUMBER_OF_PARTICIPANT)]
-        all_optimal_probabilities = [[] for _ in range(NUMBER_OF_PARTICIPANT)]
-        all_optimal_probabilities_inner = [[] for _ in range(NUMBER_OF_PARTICIPANT)]
-        all_optimal_probabilities_outer = [[] for _ in range(NUMBER_OF_PARTICIPANT)]
-        all_optimal_probabilities_last = [[] for _ in range(NUMBER_OF_PARTICIPANT)]
+                    rawFile = open(path, "r")
+                    reader = csv.DictReader(rawFile, delimiter="#")
+                    trials_data = []
+                    length = []
+                    for row in reader:
+                        trial = row["trial_data"]
+                        if trial != "--":
+                            transformed_trial = json.loads(trial)
+                            trials_data.append(transformed_trial)
+                            length.append(len(transformed_trial))
+                    trials_data = trials_data[:TRIAL_LENGTH]
 
-        for lists in os.listdir(BASE_PATH):
-            path = os.path.join(BASE_PATH, lists)
-            print("Loading ", path)
-            split = lists.split("_")
-            participant_id = int(split[0])
-            if participant_id >= NUMBER_OF_PARTICIPANT:
-                continue
+                    steps = []
+                    for trial in trials_data:
+                        steps.append(len(trial))
 
-            rawFile = open(path, "r")
-            reader = csv.DictReader(rawFile, delimiter="#")
-            trials_data = []
-            length = []
-            for row in reader:
-                trial = row["trial_data"]
-                if trial != "--":
-                    transformed_trial = json.loads(trial)
-                    trials_data.append(transformed_trial)
-                    length.append(len(transformed_trial))
-            trials_data = trials_data[:TRIAL_LENGTH]
-            all_data[participant_id] = trials_data
+                    all_reduction["steps"].append(steps)
+                    all_reduction
+                    all_reduction["participant"].append(steps)
+                    result = optimal_probability(participant_id, trials_data, is_simulate=True, is_randomized=randomized)
+                    all_reduction["optimal"] = result[0]
+                    all_reduction["optimal_inner"] = result[1]["inner"]
+                    all_reduction["optimal_outer"] = result[1]["outer"]
+                    all_reduction["optimal_last"] = result[1]["last"]
 
-            steps = []
-            for trial in trials_data:
-                steps.append(len(trial))
-            all_steps[participant_id] = steps
-            result = optimal_probability(participant_id, trials_data, is_simulate=True, is_randomized=randomized)
-            all_optimal_probabilities[participant_id] = result[0]
-            all_optimal_probabilities_inner[participant_id] = result[1]["inner"]
-            all_optimal_probabilities_outer[participant_id] = result[1]["outer"]
-            all_optimal_probabilities_last[participant_id] = result[1]["last"]
-
-        all_all_steps[str(alpha)] = all_steps
-        all_all_optimal_probabilities[str(alpha)] = all_optimal_probabilities
-        all_all_optimal_probabilities_inner[str(alpha)] = all_optimal_probabilities_inner
-        all_all_optimal_probabilities_outer[str(alpha)] = all_optimal_probabilities_outer
-        all_all_optimal_probabilities_last[str(alpha)] = all_optimal_probabilities_last
-
-    transform_and_plot(all_all_steps, "step")
-    transform_and_plot(all_all_optimal_probabilities, "optimal")
-    transform_and_plot(all_all_optimal_probabilities_inner, "optimal_inner")
-    transform_and_plot(all_all_optimal_probabilities_outer, "optimal_outer")
-    transform_and_plot(all_all_optimal_probabilities_last, "optimal_last")
+    data_frame = pd.DataFrame(all_reduction)

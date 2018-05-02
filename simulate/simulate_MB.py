@@ -5,6 +5,7 @@ from Transition import Transition
 from utils import utils
 import random
 import os
+import shutil
 
 
 def simulate_MB(randomized=True,
@@ -47,6 +48,14 @@ def simulate_MB(randomized=True,
         episode = 0
         total_reward = 0
 
+        dir_path = "data/MB/eta%.1f_tau%.1f_forward%d/" % (eta, tau, forward_planning) + (
+            "randomized" if randomized else "block") + "/"
+        if not os.path.isdir(dir_path):
+            os.makedirs(dir_path)
+        else:
+            shutil.rmtree(dir_path)
+            os.makedirs(dir_path)
+
         # model and parameters
         trans_prob = np.zeros(shape=[6, 3, 6]) + 1 / 3
 
@@ -79,9 +88,10 @@ def simulate_MB(randomized=True,
                 # print(np.max(q_value))
 
                 action = utils.random_pick([0, 1, 2],
-                                           utils.softmax([q_value[now_state, 0],
-                                                          q_value[now_state, 1],
-                                                          q_value[now_state, 2]], tau))
+                                           utils.softmax(np.array([q_value[now_state, 0],
+                                                                   q_value[now_state, 1],
+                                                                   q_value[now_state, 2]]),
+                                                         tau))
 
                 new_state = transition.step(now_state, action)
                 trial_record.append([now_state, action, new_state])
@@ -97,9 +107,6 @@ def simulate_MB(randomized=True,
             trials.addData("trial_data", trial_record)
             timesteps_record.append(step)
 
-        dir_path = "data/MB/eta%.1f_tau%.1f_forward%d/" % (eta, tau, forward_planning) + ("randomized" if randomized else "block")
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path)
         trials.saveAsWideText(dir_path + "/" + str(time) + "_simulate.csv", delim="#")
         print("eta: %.1f, tau: %.1f, forward: %d, times: %d, Total Reward: %d" % (eta, tau, forward_planning, time, total_reward))
 

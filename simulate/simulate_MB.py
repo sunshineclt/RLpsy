@@ -1,3 +1,4 @@
+import multiprocessing as mp
 import os
 import random
 import shutil
@@ -10,11 +11,11 @@ from utils import utils
 
 
 def simulate_MB(randomized=True,
-                repeat=50,
-                gamma=0.9,
                 eta=0.1,
                 tau=1,
-                forward_planning=6):
+                forward_planning=6,
+                repeat=50,
+                gamma=0.9):
 
     dir_path = "data/MB/eta%.1f_tau%.1f_forward%d/" % (eta, tau, forward_planning) + (
         "randomized" if randomized else "block") + "/"
@@ -115,11 +116,13 @@ def simulate_MB(randomized=True,
 
 
 if __name__ == "__main__":
+    condition = []
     for eta_value in [i / 10 for i in range(1, 11)]:
         for randomized_value in [True, False]:
             for tau_value in [0.1, 0.5, 1, 5, 10, 100]:
                 for forward_planning_value in [2, 3, 4, 5, 6, 7]:
-                    simulate_MB(randomized=randomized_value,
-                                eta=eta_value,
-                                tau=tau_value,
-                                forward_planning=forward_planning_value)
+                    condition.append((eta_value, randomized_value, tau_value, forward_planning_value))
+    pool = mp.Pool()
+    pool.starmap(simulate_MB, condition)
+    pool.close()
+    print("main process finished")

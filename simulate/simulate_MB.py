@@ -1,3 +1,4 @@
+import datetime
 import multiprocessing as mp
 import os
 import random
@@ -116,13 +117,19 @@ def simulate_MB(randomized=True,
 
 
 if __name__ == "__main__":
+    time_stamp = datetime.datetime.now()
+    print("start time: ", time_stamp.strftime('%H:%M:%S'))
     condition = []
     for eta_value in [i / 10 for i in range(1, 11)]:
         for randomized_value in [True, False]:
             for tau_value in [0.1, 0.5, 1, 5, 10, 100]:
                 for forward_planning_value in [2, 3, 4, 5, 6, 7]:
                     condition.append((eta_value, randomized_value, tau_value, forward_planning_value))
+    time_stamp = datetime.datetime.now()
+    print("start execution time: ", time_stamp.strftime('%H:%M:%S'))
     pool = mp.Pool()
     pool.starmap(simulate_MB, condition)
     pool.close()
     print("main process finished")
+    time_stamp = datetime.datetime.now()
+    print("end time: ", time_stamp.strftime('%H:%M:%S'))

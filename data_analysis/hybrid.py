@@ -1,7 +1,6 @@
 import csv
 import datetime
 import json
-import multiprocessing as mp
 import os
 
 import numpy as np
@@ -139,8 +138,8 @@ if __name__ == "__main__":
 
         bounds = [(0, 1), (1e-5, 100), (0, 1), (0, 1), (0, 1), (0, None), (0, 0.01), (0, 0.01)]
 
-        pool.map(minimize, [[(hybrid_lld, initial, bounds), ] for initial in initial_value])
-        print("For participant %d, best fit lld is %.3f, alpha=%.2f, tau=%.2f, gamma=%.2f, eta=%.2f, I=%.2f, k=%.2f" %
+        pool.map(minimize, [(hybrid_lld, initial, bounds) for initial in initial_value])
+        print("For participant %d, best fit lld is %.3f, alpha=%.2f, tau=%.2f, gamma=%.2f, eta=%.2f, I=%.2f, k=%.2f, forget_MF=%.2f, forget_MB=%.2f" %
               (participant_id, min_fun, min_fun.x))
 
     time_stamp = datetime.datetime.now()

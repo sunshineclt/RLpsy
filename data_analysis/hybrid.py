@@ -34,7 +34,7 @@ def hybrid_lld(params):
         r[trial_end_state] = 20
         for transit in trials_data[episode]:
             now_state = transit[0]
-            action = transit[1]
+            action_chosen = transit[1]
             step += 1
             global_step += 1
 
@@ -50,30 +50,30 @@ def hybrid_lld(params):
                         #                                   (r[state_1] + gamma * np.max(q_value[state_1]))
                 q_value_MB = new_q_value
 
-            weight_MB = I * np.exp(-k * (episode * 144 + global_step))
+            weight_MB = I * np.exp(-k * global_step)
             hybrid_q_value = q_value_MB[now_state] * weight_MB + (1 - weight_MB) * q_value_MF[trial_end_state][now_state]
-            likelihood = utils.softmax(np.array(hybrid_q_value[0],
-                                                hybrid_q_value[1],
-                                                hybrid_q_value[2]),
-                                       tau)[action]
+            likelihood = utils.softmax(np.array([hybrid_q_value[0],
+                                                 hybrid_q_value[1],
+                                                 hybrid_q_value[2]]),
+                                       tau)[action_chosen]
 
             if likelihood < 1e-200:
-                lld += 460.517
+                lld += 1000000
             else:
                 lld -= np.log(likelihood)
 
             if step != 1:
-                target = 0 + gamma * q_value_MF[trial_end_state][now_state, action]
+                target = 0 + gamma * q_value_MF[trial_end_state][now_state, action_chosen]
                 delta = target - q_value_MF[trial_end_state][last_state, last_action]
                 q_value_MF[trial_end_state][last_state, last_action] += alpha * delta
             last_state = now_state
-            last_action = action
+            last_action = action_chosen
 
             new_state = transit[2]
-            trans_prob_to_new_state = trans_prob[now_state, action, new_state]
-            trans_prob[now_state, action] *= (1 - eta)
-            trans_prob[now_state, action, new_state] = trans_prob_to_new_state + eta * (1 - trans_prob_to_new_state)
-            trans_prob = (1 / 6 - trans_prob) * forget + trans_prob
+            trans_prob_to_new_state = trans_prob[now_state, action_chosen, new_state]
+            trans_prob[now_state, action_chosen] *= (1 - eta)
+            trans_prob[now_state, action_chosen, new_state] = trans_prob_to_new_state + eta * (1 - trans_prob_to_new_state)
+            # trans_prob = (1 / 6 - trans_prob) * forget + trans_prob
             # TODO: add forget here
 
         target = max(21 - step, 1)
@@ -108,7 +108,7 @@ if __name__ == "__main__":
                 length.append(len(transformed_trial))
         trials_data = trials_data[:TRIAL_LENGTH]
 
-        result = optimize.minimize(MF_lld, np.array([0.1, 0.5, 0.9]), bounds=[(0, 1), (1e-200, None), (0, 1)])
+        result = optimize.minimize(hybrid_lld, np.array([0.1, 10, 0.9, 0.1, 1, 0.01]), bounds=[(0, 1), (1e-5, 100), (0, 1), (0, 1), (0, 1), (0, None)])
         print("For participant %d, best fit lld is %.3f, alpha=%.2f, tau=%.2f, gamma=%.2f, eta=%.2f, I=%.2f, k=%.2f" %
               (participant_id, result.fun, *result.x))
 

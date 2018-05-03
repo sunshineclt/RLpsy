@@ -54,7 +54,8 @@ def hybrid_lld(params):
                 q_value_MB = new_q_value
 
             weight_MB = I * np.exp(-k * global_step)
-            hybrid_q_value = q_value_MB[now_state] * weight_MB + (1 - weight_MB) * q_value_MF[trial_end_state][now_state]
+            hybrid_q_value = q_value_MB[now_state] * weight_MB + (1 - weight_MB) * q_value_MF[trial_end_state][
+                now_state]
             likelihood = utils.softmax(np.array([hybrid_q_value[0],
                                                  hybrid_q_value[1],
                                                  hybrid_q_value[2]]),
@@ -76,7 +77,8 @@ def hybrid_lld(params):
             new_state = transit[2]
             trans_prob_to_new_state = trans_prob[now_state, action_chosen, new_state]
             trans_prob[now_state, action_chosen] *= (1 - eta)
-            trans_prob[now_state, action_chosen, new_state] = trans_prob_to_new_state + eta * (1 - trans_prob_to_new_state)
+            trans_prob[now_state, action_chosen, new_state] = trans_prob_to_new_state + eta * (
+                        1 - trans_prob_to_new_state)
             trans_prob = (1 / 6 - trans_prob) * forget_MB + trans_prob
 
         target = max(21 - step, 1)
@@ -89,6 +91,20 @@ def hybrid_lld(params):
 if __name__ == "__main__":
     time_stamp = datetime.datetime.now()
     print("start time: ", time_stamp.strftime('%H:%M:%S'))
+
+    hybrid_fit_result = open("hybrid_result.csv", "w")
+    fieldnames = ["participant",
+                  "nlld",
+                  "alpha",
+                  "tau",
+                  "gamma",
+                  "eta",
+                  "I",
+                  "k",
+                  "forget_MF",
+                  "forget_MB"]
+    writer = csv.DictWriter(hybrid_fit_result, fieldnames)
+    writer.writerow(dict(zip(fieldnames, fieldnames)))
 
     NUMBER_OF_PARTICIPANT = 36
     TRIAL_LENGTH = 144
@@ -115,6 +131,7 @@ if __name__ == "__main__":
         min_fun_x = 0
         lock = mp.Lock()
 
+
         def minimize(args):
             f, x, bound = args
             res = optimize.minimize(f, x, bounds=bound)
@@ -125,6 +142,7 @@ if __name__ == "__main__":
                 min_fun = res.fun
                 min_fun_x = res.x
             lock.release()
+
 
         pool = mp.Pool()
         initial_value = [np.array([0.1, 0.1, 0.9, 0.1, 0.3, 0.01, 0.01, 0.001]),
@@ -140,8 +158,10 @@ if __name__ == "__main__":
         bounds = [(0, 1), (1e-5, 100), (0, 1), (0, 1), (0, 1), (0, None), (0, 0.01), (0, 0.01)]
 
         pool.map(minimize, [(hybrid_lld, initial, bounds) for initial in initial_value])
-        print("For participant %d, best fit lld is %.3f, alpha=%.2f, tau=%.2f, gamma=%.2f, eta=%.2f, I=%.2f, k=%.2f, forget_MF=%.2f, forget_MB=%.2f" %
-              (participant_id, min_fun, min_fun.x))
+        print(
+            "For participant %d, best fit lld is %.3f, alpha=%.2f, tau=%.2f, gamma=%.2f, eta=%.2f, I=%.2f, k=%.2f, forget_MF=%.2f, forget_MB=%.2f" %
+            (participant_id, min_fun, min_fun.x))
+        writer.writerow(dict(zip(fieldnames, [participant_id, min_fun, min_fun_x])))
 
     time_stamp = datetime.datetime.now()
     print("end time: ", time_stamp.strftime('%H:%M:%S'))

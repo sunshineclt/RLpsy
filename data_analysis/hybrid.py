@@ -16,6 +16,8 @@ def hybrid_lld(params):
     eta = params[3]
     I = params[4]
     k = params[5]
+    forget_MF = params[6]
+    forget_MB = params[7]
     forward_planning = 2
 
     # model and parameters
@@ -68,13 +70,13 @@ def hybrid_lld(params):
                 q_value_MF[trial_end_state][last_state, last_action] += alpha * delta
             last_state = now_state
             last_action = action_chosen
+            q_value_MF *= (1 - forget_MF)
 
             new_state = transit[2]
             trans_prob_to_new_state = trans_prob[now_state, action_chosen, new_state]
             trans_prob[now_state, action_chosen] *= (1 - eta)
             trans_prob[now_state, action_chosen, new_state] = trans_prob_to_new_state + eta * (1 - trans_prob_to_new_state)
-            # trans_prob = (1 / 6 - trans_prob) * forget + trans_prob
-            # TODO: add forget here
+            trans_prob = (1 / 6 - trans_prob) * forget_MB + trans_prob
 
         target = max(21 - step, 1)
         delta = target - q_value_MF[trial_end_state][last_state, last_action]
@@ -108,7 +110,7 @@ if __name__ == "__main__":
                 length.append(len(transformed_trial))
         trials_data = trials_data[:TRIAL_LENGTH]
 
-        result = optimize.minimize(hybrid_lld, np.array([0.1, 10, 0.9, 0.1, 1, 0.01]), bounds=[(0, 1), (1e-5, 100), (0, 1), (0, 1), (0, 1), (0, None)])
+        result = optimize.minimize(hybrid_lld, np.array([0.1, 10, 0.9, 0.1, 1, 0.01, 0.01, 0.01]), bounds=[(0, 1), (1e-5, 100), (0, 1), (0, 1), (0, 1), (0, None), (0, 1), (0, 1)])
         print("For participant %d, best fit lld is %.3f, alpha=%.2f, tau=%.2f, gamma=%.2f, eta=%.2f, I=%.2f, k=%.2f" %
               (participant_id, result.fun, *result.x))
 

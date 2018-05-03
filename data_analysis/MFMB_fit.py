@@ -41,25 +41,21 @@ def MFMB_lld(params):
             step += 1
             # global_step += 1
 
-            q_value_MB = np.zeros(shape=[6, 3])
-            for iter_times in range(forward_planning):
-                new_q_value = np.zeros(shape=[6, 3])
-                for state in range(6):
-                    for action in range(3):
-                        new_q_value[state, action] = np.sum(
-                            trans_prob[state, action] * (r + gamma * np.max(q_value_MB, axis=1)))
-                        # for state_1 in range(6):
-                        #     new_new_q_value[state, action] += trans_prob[state, action, state_1] * \
-                        #                                   (r[state_1] + gamma * np.max(q_value[state_1]))
-                q_value_MB = new_q_value
+            successor = trans_prob[now_state].copy()  # shape = 3, 6
+            it = trans_prob[now_state].copy()  # shape = 3, 6
+            for iter_times in range(forward_planning - 1):
+                new_it = np.zeros(shape=[3, 6])
+                for action in range(3):
+                    for old_state in range(6):
+                        old_action = np.argmax(q_value_MF[trial_end_state][old_state])
+                        new_it[action] += it[action, old_state] * trans_prob[old_state, old_action]  # vector calculation
+                it = gamma * new_it
+                successor += it
+            q_value_MB = successor.dot(r)
 
-            # weight_MB = I * np.exp(-k * global_step)
-            # hybrid_q_value = q_value_MB[now_state] * weight_MB + (1 - weight_MB) * q_value_MF[trial_end_state][
-            #     now_state]
-            hybrid_q_value = q_value_MB[now_state]
-            likelihood = utils.softmax(np.array([hybrid_q_value[0],
-                                                 hybrid_q_value[1],
-                                                 hybrid_q_value[2]]),
+            likelihood = utils.softmax(np.array([q_value_MB[0],
+                                                 q_value_MB[1],
+                                                 q_value_MB[2]]),
                                        tau)[action_chosen]
 
             if likelihood < 1e-200:

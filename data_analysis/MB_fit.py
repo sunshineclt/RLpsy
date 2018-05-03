@@ -88,7 +88,7 @@ if __name__ == "__main__":
                 length.append(len(transformed_trial))
         trials_data = trials_data[:TRIAL_LENGTH]
 
-        result = optimize.minimize(MB_lld, np.array([0.7, 0.5, 0.9, 0.001]), bounds=[(0, 1), (1e-2, None), (0, 1), (1e-100, 0.5)])
+        result = optimize.minimize(MB_lld, np.array([0.7, 1, 0.9, 0.001]), bounds=[(0, 1), (1e-5, 100), (0, 1), (1e-100, 0.5)])
         print("For participant %d, best fit lld is %.3f, eta=%.2f, tau=%.2f, gamma=%.2f, forget=%.4f" %
               (participant_id, result.fun, result.x[0], result.x[1], result.x[2], result.x[3]))
 

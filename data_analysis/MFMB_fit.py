@@ -134,15 +134,15 @@ if __name__ == "__main__":
 
 
         pool = mp.Pool(12)
-        initial_value = [np.array([0.1, 1, 0.9, 0.1, 0.001]),
-                         np.array([0.1, 1, 0.9, 0.5, 0.001]),
-                         np.array([0.1, 1, 0.9, 0.9, 0.001]),
-                         np.array([0.5, 1, 0.9, 0.1, 0.001]),
+        initial_value = [np.array([0.3, 1, 0.9, 0.3, 0.001]),
+                         np.array([0.3, 1, 0.9, 0.5, 0.001]),
+                         np.array([0.3, 1, 0.9, 0.7, 0.001]),
+                         np.array([0.5, 1, 0.9, 0.3, 0.001]),
                          np.array([0.5, 1, 0.9, 0.5, 0.001]),
-                         np.array([0.5, 1, 0.9, 0.9, 0.001]),
-                         np.array([0.9, 1, 0.9, 0.1, 0.001]),
-                         np.array([0.9, 1, 0.9, 0.5, 0.001]),
-                         np.array([0.9, 1, 0.9, 0.9, 0.001])]
+                         np.array([0.5, 1, 0.9, 0.7, 0.001]),
+                         np.array([0.7, 1, 0.9, 0.3, 0.001]),
+                         np.array([0.7, 1, 0.9, 0.5, 0.001]),
+                         np.array([0.7, 1, 0.9, 0.7, 0.001])]
 
         bounds = [(0, 1), (1e-5, 100), (0, 1), (0, 1), (0, 0.01)]
         condition = [(MFMB_lld, initial, bounds) for initial in initial_value]
@@ -155,7 +155,7 @@ if __name__ == "__main__":
                 min_fun = result[i].fun
                 min_fun_x = result[i].x
         print(
-            "For participant %d, best fit lld is %.3f, alpha=%.2f, tau=%.2f, gamma=%.2f, eta=%.2f, forget_MF=%.2f" %
+            "For participant %d, best fit lld is %.3f, alpha=%.2f, tau=%.2f, gamma=%.2f, eta=%.2f, forget_MF=%.5f" %
             (participant_id, min_fun, *min_fun_x))
         writer.writerow(dict(zip(fieldnames, [participant_id, min_fun, *min_fun_x])))
 

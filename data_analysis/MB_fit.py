@@ -40,8 +40,8 @@ def MB_lld(params):
                         new_q_value[state, action] = np.sum(
                             trans_prob[state, action] * (r + gamma * np.max(q_value, axis=1)))
                         # for state_1 in range(6):
-                        #     new_q_value[state, action] += trans_prob[state, action, state_1] * (
-                        #                 r[state_1] + gamma * np.max(q_value[state_1]))
+                        #     new_new_q_value[state, action] += trans_prob[state, action, state_1] * \
+                        #                                   (r[state_1] + gamma * np.max(q_value[state_1]))
                 q_value = new_q_value
 
             likelihood = utils.softmax(np.array([q_value[now_state, 0],
@@ -88,7 +88,7 @@ if __name__ == "__main__":
                 length.append(len(transformed_trial))
         trials_data = trials_data[:TRIAL_LENGTH]
 
-        result = optimize.minimize(MB_lld, np.array([0.7, 0.5, 0.9, 0.001]), bounds=[(0, 1), (1e-200, None), (0, 1), (1e-100, 1-1e-100)])
+        result = optimize.minimize(MB_lld, np.array([0.7, 0.5, 0.9, 0.001]), bounds=[(0, 1), (1e-2, None), (0, 1), (1e-100, 0.5)])
         print("For participant %d, best fit lld is %.3f, eta=%.2f, tau=%.2f, gamma=%.2f, forget=%.4f" %
               (participant_id, result.fun, result.x[0], result.x[1], result.x[2], result.x[3]))
 

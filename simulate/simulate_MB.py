@@ -61,7 +61,7 @@ def simulate_MB(randomized=True,
         total_reward = 0
 
         # model and parameters
-        trans_prob = np.zeros(shape=[6, 3, 6]) + 1 / 3
+        trans_prob = np.zeros(shape=[6, 3, 6]) + 1 / 6
 
         for trial in trials:
             episode += 1

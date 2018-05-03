@@ -1,6 +1,7 @@
 import csv
 import datetime
 import json
+import multiprocessing as mp
 import os
 
 import numpy as np
@@ -110,9 +111,37 @@ if __name__ == "__main__":
                 length.append(len(transformed_trial))
         trials_data = trials_data[:TRIAL_LENGTH]
 
-        result = optimize.minimize(hybrid_lld, np.array([0.1, 10, 0.9, 0.1, 1, 0.01, 0.01, 0.01]), bounds=[(0, 1), (1e-5, 100), (0, 1), (0, 1), (0, 1), (0, None), (0, 1), (0, 1)])
+        min_fun = 0
+        min_fun_x = 0
+        lock = mp.Lock()
+
+        def minimize(args):
+            f, x, bound = args
+            res = optimize.minimize(f, x, bounds=bound)
+            lock.acquire()
+            global min_fun
+            global min_fun_x
+            if res.fun < min_fun:
+                min_fun = res.fun
+                min_fun_x = res.x
+            lock.release()
+
+        pool = mp.Pool()
+        initial_value = [np.array([0.1, 0.1, 0.9, 0.1, 0.3, 0.01, 0.01, 0.001]),
+                         np.array([0.1, 0.5, 0.9, 0.5, 0.5, 0.01, 0.01, 0.001]),
+                         np.array([0.1, 1, 0.9, 0.9, 0.7, 0.01, 0.01, 0.001]),
+                         np.array([0.5, 5, 0.9, 0.1, 0.5, 0.01, 0.01, 0.001]),
+                         np.array([0.5, 10, 0.9, 0.5, 0.7, 0.01, 0.01, 0.001]),
+                         np.array([0.5, 1, 0.9, 0.9, 0.3, 0.01, 0.01, 0.001]),
+                         np.array([0.9, 10, 0.9, 0.1, 0.5, 0.01, 0.01, 0.001]),
+                         np.array([0.9, 5, 0.9, 0.5, 0.3, 0.01, 0.01, 0.001]),
+                         np.array([0.9, 5, 0.9, 0.9, 0.7, 0.01, 0.01, 0.001])]
+
+        bounds = [(0, 1), (1e-5, 100), (0, 1), (0, 1), (0, 1), (0, None), (0, 0.01), (0, 0.01)]
+
+        pool.map(minimize, [[(hybrid_lld, initial, bounds), ] for initial in initial_value])
         print("For participant %d, best fit lld is %.3f, alpha=%.2f, tau=%.2f, gamma=%.2f, eta=%.2f, I=%.2f, k=%.2f" %
-              (participant_id, result.fun, *result.x))
+              (participant_id, min_fun, min_fun.x))
 
     time_stamp = datetime.datetime.now()
     print("end time: ", time_stamp.strftime('%H:%M:%S'))

@@ -13,10 +13,11 @@ def MB_lld(params):
     eta = params[0]
     tau = params[1]
     gamma = params[2]
-    forward_planning=2
+    forget = params[3]
+    forward_planning = 2
 
     # model and parameters
-    trans_prob = np.zeros(shape=[6, 3, 6]) + 1 / 3
+    trans_prob = np.zeros(shape=[6, 3, 6]) + 1 / 6
 
     lld = 0
 
@@ -56,8 +57,9 @@ def MB_lld(params):
             trans_prob_to_new_state = trans_prob[now_state, action, new_state]
             trans_prob[now_state, action] *= (1 - eta)
             trans_prob[now_state, action, new_state] = trans_prob_to_new_state + eta * (1 - trans_prob_to_new_state)
-            # TODO: add forget
+            trans_prob = (1/6 - trans_prob) * forget + trans_prob
 
+    # print(lld)
     return lld
 
 
@@ -86,9 +88,9 @@ if __name__ == "__main__":
                 length.append(len(transformed_trial))
         trials_data = trials_data[:TRIAL_LENGTH]
 
-        result = optimize.minimize(MB_lld, np.array([0.1, 0.5, 0.9]), bounds=[(0, 1), (1e-200, None), (0, 1)])
-        print("For participant %d, best fit lld is %.3f, eta=%.2f, tau=%.2f, gamma=%.2f" %
-              (participant_id, result.fun, result.x[0], result.x[1], result.x[2]))
+        result = optimize.minimize(MB_lld, np.array([0.7, 0.5, 0.9, 0.001]), bounds=[(0, 1), (1e-200, None), (0, 1), (1e-100, 1-1e-100)])
+        print("For participant %d, best fit lld is %.3f, eta=%.2f, tau=%.2f, gamma=%.2f, forget=%.4f" %
+              (participant_id, result.fun, result.x[0], result.x[1], result.x[2], result.x[3]))
 
     time_stamp = datetime.datetime.now()
     print("end time: ", time_stamp.strftime('%H:%M:%S'))

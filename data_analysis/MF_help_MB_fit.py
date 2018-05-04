@@ -10,7 +10,7 @@ from scipy import optimize
 from utils import utils
 
 
-def MFMB_lld(params):
+def MF_help_MB_lld(params):
     alpha = params[0]
     tau = params[1]
     gamma = params[2]
@@ -31,8 +31,6 @@ def MFMB_lld(params):
         trial_end_state = trials_data[episode][-1][2]
 
         step = 0
-        last_state = 0
-        last_action = 0
         r = np.zeros(shape=[6]) - 1
         r[trial_end_state] = 20
         for transit in trials_data[episode]:
@@ -142,7 +140,7 @@ if __name__ == "__main__":
                          np.array([0.7, 1, 0.9, 0.7, 0.001, 0.001, 1, 0.01])]
 
         bounds = [(0, 1), (1e-5, 100), (0, 1), (0, 1), (0, 0.01), (0, 0.01), (0, 1), (0, 10)]
-        condition = [(MFMB_lld, initial, bounds) for initial in initial_value]
+        condition = [(MF_help_MB_lld, initial, bounds) for initial in initial_value]
 
         # MFMB_lld([0.99, 0.11, 0.03, 1.00, 0.001, 0.001])
         # break

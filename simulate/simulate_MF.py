@@ -15,7 +15,7 @@ def simulate_MF(randomized=True,
                 alpha=0.1,
                 tau=1,
                 repeat=50,
-                gamma=0.9):
+                gamma=1):
 
     dir_path = "data/MF_forget/alpha%.1f_tau%.1f/" % (alpha, tau) + ("randomized" if randomized else "block") + "/"
     if not os.path.isdir(dir_path):
@@ -82,17 +82,17 @@ def simulate_MF(randomized=True,
 
                 new_state = transition.step(now_state, action)
                 trial_record.append([now_state, action, new_state])
-                if step != 1:
-                    target = 0 + gamma * q_value[trial_end_state][now_state, action]
-                    delta = target - q_value[trial_end_state][trial_record[-1][0], trial_record[-1][1]]
-                    q_value[trial_end_state][trial_record[-1][0], trial_record[-1][1]] += alpha * delta
+
+                if trial_end_state == new_state:
+                    target = max(21 - step, 1)
+                else:
+                    target = gamma * np.max(q_value[trial_end_state][new_state])
+                delta = target - q_value[trial_end_state][now_state, action]
+                q_value[trial_end_state][now_state, action] += alpha * delta
 
                 now_state = new_state
                 q_value *= 0.99
 
-            target = max(21 - step, 1)
-            delta = target - q_value[trial_end_state][trial_record[-1][0], trial_record[-1][1]]
-            q_value[trial_end_state][trial_record[-1][0], trial_record[-1][1]] += alpha * delta
             # raw_data storing
             total_reward += max(21 - step, 1)
             trials.addData("trial_data", trial_record)

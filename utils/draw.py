@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from utils.savitzky_golay import savitzky_golay
+import os
+import shutil
 
 SAVITZKY_GOLAY_WINDOW = 5
 SAVITZKY_GOLAY_ORDER = 1
@@ -115,18 +117,19 @@ def draw_participant_and_simulation(participant_data,
                                     title,
                                     smooth=True,
                                     trial_length=144,
-                                    number_of_simulation=50):
+                                    save=True,
+                                    save_path=None):
     mean = participant_data
     simulation_mean = np.mean(simulation_data, axis=0)
     simulation_std = np.std(simulation_data, axis=0)
     if smooth:
         mean = savitzky_golay(mean, SAVITZKY_GOLAY_WINDOW, SAVITZKY_GOLAY_ORDER)
         simulation_mean = savitzky_golay(simulation_mean, SAVITZKY_GOLAY_WINDOW, SAVITZKY_GOLAY_ORDER)
-    plt.plot(mean, linewidth=3.0, label="participant")
     plt.plot(simulation_mean, linewidth=3.0, label="simulation")
     plt.fill_between(range(0, trial_length),
                      simulation_mean - 2 * simulation_std, simulation_mean + 2 * simulation_std,
                      alpha=0.2)
+    plt.plot(mean, linewidth=3.0, label="participant")
 
     plt.vlines(36, 0, 30)
     plt.vlines(72, 0, 30)
@@ -141,4 +144,6 @@ def draw_participant_and_simulation(participant_data,
         plt.ylim([0, 1])
     plt.legend()
     plt.title(title)
+    if save:
+        plt.savefig(save_path + data_name + ".png")
     plt.show()

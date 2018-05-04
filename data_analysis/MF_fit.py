@@ -2,6 +2,7 @@ import csv
 import datetime
 import json
 import os
+import shutil
 
 import numpy as np
 from scipy import optimize
@@ -103,12 +104,12 @@ if __name__ == "__main__":
         simulate_MF(randomized=participant_id % 2 == 0,
                     alpha=result.x[0],
                     tau=result.x[1],
-                    repeat=50,
+                    repeat=1,
                     gamma=result.x[2],
                     forget=result.x[3],
                     path="simulate_data/%02d/" % participant_id)
         BASE_PATH = "simulate_data/%02d/" % participant_id
-        NUMBER_OF_SIMULATION = 50
+        NUMBER_OF_SIMULATION = 1
 
         optimal_analysis_simulation = {"optimal": [], "optimal_inner": [], "optimal_outer": [], "optimal_last": []}
         for file in os.listdir(BASE_PATH):
@@ -127,22 +128,43 @@ if __name__ == "__main__":
                     trials_data.append(transformed_trial)
             trials_data = trials_data[:TRIAL_LENGTH]
 
-            result = optimal_probability(participant_id, trials_data, is_simulate=True,
+            result = optimal_probability(simulation_id, trials_data, is_simulate=True,
                                          is_randomized=participant_id % 2 == 0)
             optimal_analysis_simulation["optimal"].append(result[0])
             optimal_analysis_simulation["optimal_inner"].append(result[1]["inner"])
             optimal_analysis_simulation["optimal_outer"].append(result[1]["outer"])
             optimal_analysis_simulation["optimal_last"].append(result[1]["last"])
 
-        draw_participant_and_simulation(optimal_analysis_result[0],
-                                        optimal_analysis_simulation["optimal"],
-                                        "optimal"
-                                        "optimal in participant and simulation")
-
-
-
-        break
-
+        dir_path = "participant_simulation_comparison/%02d/" % participant_id
+        if not os.path.isdir(dir_path):
+            os.makedirs(dir_path)
+        else:
+            shutil.rmtree(dir_path)
+            os.makedirs(dir_path)
+        metrics = "optimal"
+        draw_participant_and_simulation(np.array(optimal_analysis_result[0]),
+                                        np.array(optimal_analysis_simulation[metrics]),
+                                        metrics,
+                                        metrics + " in participant and simulation",
+                                        save_path=dir_path)
+        metrics = "optimal_inner"
+        draw_participant_and_simulation(np.array(optimal_analysis_result[1]["inner"]),
+                                        np.array(optimal_analysis_simulation[metrics]),
+                                        metrics,
+                                        metrics + " in participant and simulation",
+                                        save_path=dir_path)
+        metrics = "optimal_outer"
+        draw_participant_and_simulation(np.array(optimal_analysis_result[1]["outer"]),
+                                        np.array(optimal_analysis_simulation[metrics]),
+                                        metrics,
+                                        metrics + " in participant and simulation",
+                                        save_path=dir_path)
+        metrics = "optimal_last"
+        draw_participant_and_simulation(np.array(optimal_analysis_result[1]["last"]),
+                                        np.array(optimal_analysis_simulation[metrics]),
+                                        metrics,
+                                        metrics + " in participant and simulation",
+                                        save_path=dir_path)
 
     time_stamp = datetime.datetime.now()
     print("end time: ", time_stamp.strftime('%H:%M:%S'))

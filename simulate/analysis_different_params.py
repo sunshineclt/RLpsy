@@ -26,7 +26,7 @@ def draw(forward_planning_value=None):
                               show=True)
 
 
-with open("optimal_%s_%s.pkl" % (SIMULATE_METHOD, ("randomized" if randomized else "block")), "rb") as f:
+with open("optimal_last_%s_%s.pkl" % (SIMULATE_METHOD, ("randomized" if randomized else "block")), "rb") as f:
     all_reduction = pickle.load(f)
 
 if SIMULATE_METHOD.find("MF") > -1:

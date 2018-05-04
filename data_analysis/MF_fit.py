@@ -7,6 +7,9 @@ import numpy as np
 from scipy import optimize
 
 from utils import utils
+from utils.draw import draw_participant_and_simulation
+from simulate.simulate_MF import simulate_MF
+from data_analysis.analysis_optimal import optimal_probability
 
 
 def MF_lld(params):
@@ -89,12 +92,57 @@ if __name__ == "__main__":
                 length.append(len(transformed_trial))
         trials_data = trials_data[:TRIAL_LENGTH]
 
+        optimal_analysis_result = optimal_probability(participant_id, trials_data, is_simulate=False)
+
         # MF_lld([0.1, 1, 0.9, 0.001])
         # break
 
         result = optimize.minimize(MF_lld, np.array([0.1, 1, 0.9, 0.001]), bounds=[(0, 1), (1e-5, 100), (0, 1), (0, 0.01)])
         print("For participant %d, best fit lld is %.3f, alpha=%.2f, tau=%.2f, gamma=%.2f, forget=%.5f" %
               (participant_id, result.fun, *result.x))
+        simulate_MF(randomized=participant_id % 2 == 0,
+                    alpha=result.x[0],
+                    tau=result.x[1],
+                    repeat=50,
+                    gamma=result.x[2],
+                    forget=result.x[3],
+                    path="simulate_data/%02d/" % participant_id)
+        BASE_PATH = "simulate_data/%02d/" % participant_id
+        NUMBER_OF_SIMULATION = 50
+
+        optimal_analysis_simulation = {"optimal": [], "optimal_inner": [], "optimal_outer": [], "optimal_last": []}
+        for file in os.listdir(BASE_PATH):
+            path = os.path.join(BASE_PATH, file)
+            print("Loading ", path)
+            split = file.split("_")
+            simulation_id = int(split[0])
+
+            rawFile = open(path, "r")
+            reader = csv.DictReader(rawFile, delimiter="#")
+            trials_data = []
+            for row in reader:
+                trial = row["trial_data"]
+                if trial != "--":
+                    transformed_trial = json.loads(trial)
+                    trials_data.append(transformed_trial)
+            trials_data = trials_data[:TRIAL_LENGTH]
+
+            result = optimal_probability(participant_id, trials_data, is_simulate=True,
+                                         is_randomized=participant_id % 2 == 0)
+            optimal_analysis_simulation["optimal"].append(result[0])
+            optimal_analysis_simulation["optimal_inner"].append(result[1]["inner"])
+            optimal_analysis_simulation["optimal_outer"].append(result[1]["outer"])
+            optimal_analysis_simulation["optimal_last"].append(result[1]["last"])
+
+        draw_participant_and_simulation(optimal_analysis_result[0],
+                                        optimal_analysis_simulation["optimal"],
+                                        "optimal"
+                                        "optimal in participant and simulation")
+
+
+
+        break
+
 
     time_stamp = datetime.datetime.now()
     print("end time: ", time_stamp.strftime('%H:%M:%S'))

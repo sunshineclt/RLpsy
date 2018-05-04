@@ -15,9 +15,14 @@ def simulate_MF(randomized=True,
                 alpha=0.1,
                 tau=1.0,
                 repeat=50,
-                gamma=1):
+                gamma=1,
+                forget=0.001,
+                path=None):
 
-    dir_path = "data/MF_forget/alpha%.1f_tau%.1f/" % (alpha, tau) + ("randomized" if randomized else "block") + "/"
+    if path:
+        dir_path = path
+    else:
+        dir_path = "data/MF_forget/alpha%.1f_tau%.1f/" % (alpha, tau) + ("randomized" if randomized else "block") + "/"
     if not os.path.isdir(dir_path):
         os.makedirs(dir_path)
     else:
@@ -96,7 +101,7 @@ def simulate_MF(randomized=True,
 #                print(q_value[2][1])
 
                 now_state = new_state
-                q_value *= 0.99
+                q_value *= (1 - forget)
 
             # raw_data storing
             total_reward += max(21 - step, 1)
@@ -104,10 +109,10 @@ def simulate_MF(randomized=True,
             timesteps_record.append(step)
 
         trials.saveAsWideText(dir_path + "/" + str(time) + "_simulate.csv", delim="#")
-        print("alpha: %.1f, tau: %.1f, %s, times: %d, Total Reward: %d" %
-              (alpha, tau,
-               ("randomized" if randomized else "block"),
-               time, total_reward))
+        # print("alpha: %.1f, tau: %.1f, %s, times: %d, Total Reward: %d" %
+        #       (alpha, tau,
+        #        ("randomized" if randomized else "block"),
+        #        time, total_reward))
 
 
 if __name__ == "__main__":

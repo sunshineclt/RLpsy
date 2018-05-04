@@ -107,3 +107,38 @@ def draw_different_params(data,
     plt.savefig(title + ".png")
     if show:
         plt.show()
+
+
+def draw_participant_and_simulation(participant_data,
+                                    simulation_data,
+                                    data_name,
+                                    title,
+                                    smooth=True,
+                                    trial_length=144,
+                                    number_of_simulation=50):
+    mean = participant_data
+    simulation_mean = np.mean(simulation_data, axis=0)
+    simulation_std = np.std(simulation_data, axis=0)
+    if smooth:
+        mean = savitzky_golay(mean, SAVITZKY_GOLAY_WINDOW, SAVITZKY_GOLAY_ORDER)
+        simulation_mean = savitzky_golay(simulation_mean, SAVITZKY_GOLAY_WINDOW, SAVITZKY_GOLAY_ORDER)
+    plt.plot(mean, linewidth=3.0, label="participant")
+    plt.plot(simulation_mean, linewidth=3.0, label="simulation")
+    plt.fill_between(range(0, trial_length),
+                     simulation_mean - 2 * simulation_std, simulation_mean + 2 * simulation_std,
+                     alpha=0.2)
+
+    plt.vlines(36, 0, 30)
+    plt.vlines(72, 0, 30)
+    plt.vlines(108, 0, 30)
+    if data_name == "step":
+        plt.ylim([0, 30])
+    elif data_name == "time":
+        plt.ylim([0, 50])
+    elif data_name == "normalized_time":
+        plt.ylim([0, 4])
+    elif data_name.find("optimal") != -1:
+        plt.ylim([0, 1])
+    plt.legend()
+    plt.title(title)
+    plt.show()

@@ -104,6 +104,6 @@ def draw_different_params(data,
         plt.title(title)
 
     plt.tight_layout()
+    plt.savefig(title + ".png")
     if show:
         plt.show()
-    plt.savefig(title + ".png")

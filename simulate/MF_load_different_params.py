@@ -6,7 +6,7 @@ import os
 from data_analysis.analysis_optimal import optimal_probability
 
 if __name__ == "__main__":
-    NUMBER_OF_PARTICIPANT = 50
+    NUMBER_OF_PARTICIPANT = 10
     TRIAL_LENGTH = 144
     SIMULATE_METHOD = "MF"
     randomized = False
@@ -42,13 +42,13 @@ if __name__ == "__main__":
                 for trial in trials_data:
                     steps.append(len(trial))
 
-                # all_reduction[eta][tau][participant_id] = steps
+                # all_reduction[alpha][tau][participant_id] = steps
                 result = optimal_probability(participant_id, trials_data, is_simulate=True,
                                              is_randomized=randomized)
                 all_reduction[alpha][tau][participant_id] = result[0]
-                # all_reduction[eta][tau][participant_id] = result[1]["inner"]
-                # all_reduction[eta][tau][participant_id] = result[1]["outer"]
-                # all_reduction[eta][tau][participant_id] = result[1]["last"]
+                # all_reduction[alpha][tau][participant_id] = result[1]["inner"]
+                # all_reduction[alpha][tau][participant_id] = result[1]["outer"]
+                # all_reduction[alpha][tau][participant_id] = result[1]["last"]
 
     with open("optimal_%s_block.pkl" % SIMULATE_METHOD, "wb") as f:
         pickle.dump(all_reduction, f)

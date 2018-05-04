@@ -13,7 +13,7 @@ from utils import utils
 
 def simulate_MF(randomized=True,
                 alpha=0.1,
-                tau=1,
+                tau=1.0,
                 repeat=50,
                 gamma=1):
 
@@ -90,6 +90,11 @@ def simulate_MF(randomized=True,
                 delta = target - q_value[trial_end_state][now_state, action]
                 q_value[trial_end_state][now_state, action] += alpha * delta
 
+#                if trial_end_state == 2 and now_state == 1 and action == 2:
+#                    print(new_state)
+#                    print(np.max(q_value[trial_end_state][new_state]))
+#                print(q_value[2][1])
+
                 now_state = new_state
                 q_value *= 0.99
 
@@ -111,12 +116,13 @@ if __name__ == "__main__":
     condition = []
     for alpha_value in [0.1, 0.3, 0.5, 0.7, 0.9, 1.0]:
         for randomized_value in [True, False]:
-            for tau_value in [0.1, 0.5, 1, 5, 10, 100]:
+            for tau_value in [0.1, 0.3, 0.5, 1, 10, 100]:
                 condition.append((randomized_value, alpha_value, tau_value))
     time_stamp = datetime.datetime.now()
     print("start execution time: ", time_stamp.strftime('%H:%M:%S'))
     pool = mp.Pool()
     pool.starmap(simulate_MF, condition)
+    # simulate_MF(False, 0.3, 0.3)
     pool.close()
     print("main process finished")
     time_stamp = datetime.datetime.now()

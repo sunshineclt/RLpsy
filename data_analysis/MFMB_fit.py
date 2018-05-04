@@ -15,10 +15,10 @@ def MFMB_lld(params):
     tau = params[1]
     gamma = params[2]
     eta = params[3]
-    # I = params[4]
-    # k = params[5]
     forget_MF = params[4]
-    # forget_MB = params[7]
+    forget_MB = params[5]
+    I = params[6]
+    k = params[7]
     forward_planning = 2
 
     # model and parameters
@@ -26,7 +26,7 @@ def MFMB_lld(params):
     trans_prob = np.zeros(shape=[6, 3, 6]) + 1 / 6
 
     lld = 0
-    # global_step = 0
+    global_step = 0
     for episode in range(144):
         trial_end_state = trials_data[episode][-1][2]
 
@@ -39,7 +39,7 @@ def MFMB_lld(params):
             now_state = transit[0]
             action_chosen = transit[1]
             step += 1
-            # global_step += 1
+            global_step += 1
 
             successor = trans_prob[now_state].copy()  # shape = 3, 6
             it = trans_prob[now_state].copy()  # shape = 3, 6
@@ -49,13 +49,15 @@ def MFMB_lld(params):
                     for old_state in range(6):
                         old_action = np.argmax(q_value_MF[trial_end_state][old_state])
                         new_it[action] += it[action, old_state] * trans_prob[old_state, old_action]  # vector calculation
-                it = gamma * new_it
-                successor += it
+                assert np.all(np.sum(new_it, axis=1) - 1 < 1e-1)
+                it = new_it
+                successor += it * (gamma ** iter_times)
             q_value_MB = successor.dot(r)
 
-            likelihood = utils.softmax(np.array([q_value_MB[0],
-                                                 q_value_MB[1],
-                                                 q_value_MB[2]]),
+            weight_MB = I * (-np.exp(-k * global_step) + 1)
+            hybrid_q_value = q_value_MB * weight_MB + (1 - weight_MB) * q_value_MF[trial_end_state][now_state]
+
+            likelihood = utils.softmax(hybrid_q_value,
                                        tau)[action_chosen]
 
             if likelihood < 1e-200:
@@ -63,25 +65,23 @@ def MFMB_lld(params):
             else:
                 lld -= np.log(likelihood)
 
-            if step != 1:
-                target = 0 + gamma * q_value_MF[trial_end_state][now_state, action_chosen]
-                delta = target - q_value_MF[trial_end_state][last_state, last_action]
-                q_value_MF[trial_end_state][last_state, last_action] += alpha * delta
-            last_state = now_state
-            last_action = action_chosen
+            new_state = transit[2]
+            if trial_end_state == new_state:
+                target = max(21 - step, 1)
+            else:
+                target = gamma * np.max(q_value_MF[trial_end_state][new_state])
+            delta = target - q_value_MF[trial_end_state][now_state, action_chosen]
+            q_value_MF[trial_end_state][now_state, action_chosen] += alpha * delta
             q_value_MF *= (1 - forget_MF)
 
-            new_state = transit[2]
-            lr = eta * q_value_MF[trial_end_state][last_state, last_action]
+            # if utils.softmax(q_value_MF[trial_end_state][last_state], tau)[last_action] > 0.7:
+                # lr = eta * utils.softmax(q_value_MF[trial_end_state][last_state], tau)[last_action]
+            lr = eta
             trans_prob_to_new_state = trans_prob[now_state, action_chosen, new_state]
             trans_prob[now_state, action_chosen] *= (1 - lr)
             trans_prob[now_state, action_chosen, new_state] = trans_prob_to_new_state + lr * (
                         1 - trans_prob_to_new_state)
-            # trans_prob = (1 / 6 - trans_prob) * forget_MB + trans_prob
-
-        target = max(21 - step, 1)
-        delta = target - q_value_MF[trial_end_state][last_state, last_action]
-        q_value_MF[trial_end_state][last_state, last_action] += alpha * delta
+            trans_prob = (1 / 6 - trans_prob) * forget_MB + trans_prob
 
     return lld
 
@@ -97,7 +97,8 @@ if __name__ == "__main__":
                   "tau",
                   "gamma",
                   "eta",
-                  "forget_MF"]
+                  "forget_MF",
+                  "forget_MB"]
     writer = csv.DictWriter(hybrid_fit_result, fieldnames)
     writer.writerow(dict(zip(fieldnames, fieldnames)))
 
@@ -130,18 +131,21 @@ if __name__ == "__main__":
 
 
         pool = mp.Pool(12)
-        initial_value = [np.array([0.3, 1, 0.9, 0.3, 0.001]),
-                         np.array([0.3, 1, 0.9, 0.5, 0.001]),
-                         np.array([0.3, 1, 0.9, 0.7, 0.001]),
-                         np.array([0.5, 1, 0.9, 0.3, 0.001]),
-                         np.array([0.5, 1, 0.9, 0.5, 0.001]),
-                         np.array([0.5, 1, 0.9, 0.7, 0.001]),
-                         np.array([0.7, 1, 0.9, 0.3, 0.001]),
-                         np.array([0.7, 1, 0.9, 0.5, 0.001]),
-                         np.array([0.7, 1, 0.9, 0.7, 0.001])]
+        initial_value = [np.array([0.3, 1, 0.9, 0.3, 0.001, 0.001, 1, 0.01]),
+                         np.array([0.3, 1, 0.9, 0.5, 0.001, 0.001, 1, 0.01]),
+                         np.array([0.3, 1, 0.9, 0.7, 0.001, 0.001, 1, 0.01]),
+                         np.array([0.5, 1, 0.9, 0.3, 0.001, 0.001, 1, 0.01]),
+                         np.array([0.5, 1, 0.9, 0.5, 0.001, 0.001, 1, 0.01]),
+                         np.array([0.5, 1, 0.9, 0.7, 0.001, 0.001, 1, 0.01]),
+                         np.array([0.7, 1, 0.9, 0.3, 0.001, 0.001, 1, 0.01]),
+                         np.array([0.7, 1, 0.9, 0.5, 0.001, 0.001, 1, 0.01]),
+                         np.array([0.7, 1, 0.9, 0.7, 0.001, 0.001, 1, 0.01])]
 
-        bounds = [(0, 1), (1e-5, 100), (0, 1), (0, 1), (0, 0.01)]
+        bounds = [(0, 1), (1e-5, 100), (0, 1), (0, 1), (0, 0.01), (0, 0.01), (0, 1), (0, 10)]
         condition = [(MFMB_lld, initial, bounds) for initial in initial_value]
+
+        # MFMB_lld([0.99, 0.11, 0.03, 1.00, 0.001, 0.001])
+        # break
 
         result = pool.map(minimize, condition)
         min_fun = 1e50
@@ -151,7 +155,7 @@ if __name__ == "__main__":
                 min_fun = result[i].fun
                 min_fun_x = result[i].x
         print(
-            "For participant %d, best fit lld is %.3f, alpha=%.2f, tau=%.2f, gamma=%.2f, eta=%.2f, forget_MF=%.5f" %
+            "For participant %d, best fit lld is %.3f, alpha=%.2f, tau=%.2f, gamma=%.2f, eta=%.2f, forget_MF=%.5f, forget_MB=%.5f, I=%.2f, k=%.2f" %
             (participant_id, min_fun, *min_fun_x))
         writer.writerow(dict(zip(fieldnames, [participant_id, min_fun, *min_fun_x])))
 

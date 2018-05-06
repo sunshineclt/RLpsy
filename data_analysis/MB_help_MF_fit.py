@@ -78,7 +78,6 @@ def MB_help_MF_lld(params):
             # delta = q_value_MB - q_value_MF[trial_end_state][now_state]
             # q_value_MF[trial_end_state][now_state] += alpha * delta
 
-
             if trial_end_state == new_state:
                 target = max(21 - step, 1)
             else:
@@ -90,14 +89,8 @@ def MB_help_MF_lld(params):
                 q_value_MF *= (1 - forget_MF)
             else:
                 action_should_chosen = np.argmax(trans_prob[now_state, :, new_state])
-                if action_should_chosen != action_chosen:
-                    print(trans_prob[now_state, action_chosen, new_state], trans_prob[now_state, action_should_chosen, new_state])
-
                 delta = target - q_value_MF[trial_end_state][now_state, action_should_chosen]
                 q_value_MF[trial_end_state][now_state, action_should_chosen] += alpha * delta
-                delta = target - q_value_MF[trial_end_state][now_state, action_chosen]
-                q_value_MF[trial_end_state][now_state, action_chosen] += alpha * delta
-                q_value_MF *= (1 - forget_MF)
 
     return lld
 
@@ -106,7 +99,7 @@ if __name__ == "__main__":
     start_time_stamp = datetime.datetime.now()
     print("start time: ", start_time_stamp.strftime('%H:%M:%S'))
 
-    hybrid_fit_result = open("hybrid_result.csv", "w")
+    MBHMF_fit_result = open("MBHMF_result.csv", "w")
     fieldnames = ["participant",
                   "nlld",
                   "alpha",
@@ -115,7 +108,7 @@ if __name__ == "__main__":
                   "eta",
                   "forget_MF",
                   "forget_MB"]
-    writer = csv.DictWriter(hybrid_fit_result, fieldnames)
+    writer = csv.DictWriter(MBHMF_fit_result, fieldnames)
     writer.writerow(dict(zip(fieldnames, fieldnames)))
 
     NUMBER_OF_PARTICIPANT = 36
@@ -146,22 +139,18 @@ if __name__ == "__main__":
             return res
 
 
-        pool = mp.Pool(12)
-        initial_value = [np.array([0.3, 1, 0.9, 0.3, 0.001, 0.001, 1, 0.01]),
-                         np.array([0.3, 1, 0.9, 0.5, 0.001, 0.001, 1, 0.01]),
-                         np.array([0.3, 1, 0.9, 0.7, 0.001, 0.001, 1, 0.01]),
-                         np.array([0.5, 1, 0.9, 0.3, 0.001, 0.001, 1, 0.01]),
-                         np.array([0.5, 1, 0.9, 0.5, 0.001, 0.001, 1, 0.01]),
-                         np.array([0.5, 1, 0.9, 0.7, 0.001, 0.001, 1, 0.01]),
-                         np.array([0.7, 1, 0.9, 0.3, 0.001, 0.001, 1, 0.01]),
-                         np.array([0.7, 1, 0.9, 0.5, 0.001, 0.001, 1, 0.01]),
-                         np.array([0.7, 1, 0.9, 0.7, 0.001, 0.001, 1, 0.01])]
+        pool = mp.Pool(6)
+        initial_value = []
+        for i in range(6):
+            initial_value.append(np.array([np.random.random(),
+                                           np.random.random() * 100 + 1e-5,
+                                           np.random.random(),
+                                           np.random.random(),
+                                           np.random.random() * 0.05,
+                                           np.random.random() * 0.05]))
 
-        bounds = [(0, 1), (1e-5, 100), (0, 1), (0, 1), (0, 0.01), (0, 0.01), (0, 1), (0, 10)]
-        condition = [(MB_help_MF_lld, initial[:6], bounds[:6]) for initial in initial_value]
-
-        MB_help_MF_lld([0.3, 1, 1, 0.3, 0.001, 0.001])
-        break
+        bounds = [(0, 1), (1e-5, 100), (0, 1), (0, 1), (0, 0.05), (0, 0.05)]
+        condition = [(MB_help_MF_lld, initial, bounds) for initial in initial_value]
 
         result = pool.map(minimize, condition)
         min_fun = 1e50

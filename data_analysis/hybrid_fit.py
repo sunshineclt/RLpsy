@@ -31,13 +31,12 @@ def hybrid_lld(params):
         trial_end_state = trials_data[episode][-1][2]
 
         step = 0
-        last_state = 0
-        last_action = 0
         r = np.zeros(shape=[6]) - 1
         r[trial_end_state] = 20
         for transit in trials_data[episode]:
             now_state = transit[0]
             action_chosen = transit[1]
+            new_state = transit[2]
             step += 1
             global_step += 1
 
@@ -66,12 +65,12 @@ def hybrid_lld(params):
             else:
                 lld -= np.log(likelihood)
 
-            if step != 1:
-                target = 0 + gamma * q_value_MF[trial_end_state][now_state, action_chosen]
-                delta = target - q_value_MF[trial_end_state][last_state, last_action]
-                q_value_MF[trial_end_state][last_state, last_action] += alpha * delta
-            last_state = now_state
-            last_action = action_chosen
+            if trial_end_state == new_state:
+                target = max(21 - step, 1)
+            else:
+                target = gamma * np.max(q_value_MF[trial_end_state][new_state])
+            delta = target - q_value_MF[trial_end_state][now_state, action_chosen]
+            q_value_MF[trial_end_state][now_state, action_chosen] += alpha * delta
             q_value_MF *= (1 - forget_MF)
 
             new_state = transit[2]
@@ -80,10 +79,6 @@ def hybrid_lld(params):
             trans_prob[now_state, action_chosen, new_state] = trans_prob_to_new_state + eta * (
                         1 - trans_prob_to_new_state)
             trans_prob = (1 / 6 - trans_prob) * forget_MB + trans_prob
-
-        target = max(21 - step, 1)
-        delta = target - q_value_MF[trial_end_state][last_state, last_action]
-        q_value_MF[trial_end_state][last_state, last_action] += alpha * delta
 
     return lld
 
@@ -135,17 +130,18 @@ if __name__ == "__main__":
 
 
         pool = mp.Pool(12)
-        initial_value = [np.array([0.1, 0.1, 0.9, 0.1, 0.3, 0.01, 0.001, 0.001]),
-                         np.array([0.1, 0.5, 0.9, 0.5, 0.5, 0.01, 0.001, 0.001]),
-                         np.array([0.1, 1, 0.9, 0.9, 0.7, 0.01, 0.001, 0.001]),
-                         np.array([0.5, 5, 0.9, 0.1, 0.5, 0.01, 0.001, 0.001]),
-                         np.array([0.5, 10, 0.9, 0.5, 0.7, 0.01, 0.001, 0.001]),
-                         np.array([0.5, 1, 0.9, 0.9, 0.3, 0.01, 0.001, 0.001]),
-                         np.array([0.9, 10, 0.9, 0.1, 0.5, 0.01, 0.001, 0.001]),
-                         np.array([0.9, 5, 0.9, 0.5, 0.3, 0.01, 0.001, 0.001]),
-                         np.array([0.9, 5, 0.9, 0.9, 0.7, 0.01, 0.001, 0.001])]
+        initial_value = []
+        for i in range(12):
+            initial_value.append(np.array([np.random.random(),
+                                           np.random.random() * 100 + 1e-5,
+                                           np.random.random(),
+                                           np.random.random(),
+                                           np.random.random(),
+                                           np.random.random() * 0.1,
+                                           np.random.random() * 0.05,
+                                           np.random.random() * 0.05]))
 
-        bounds = [(0, 1), (1e-5, 100), (0, 1), (0, 1), (0, 1), (0, None), (0, 0.01), (0, 0.01)]
+        bounds = [(0, 1), (1e-5, 100), (0, 1), (0, 1), (0, 1), (0, 0.1), (0, 0.05), (0, 0.05)]
         condition = [(hybrid_lld, initial, bounds) for initial in initial_value]
 
         result = pool.map(minimize, condition)

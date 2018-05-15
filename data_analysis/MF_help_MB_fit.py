@@ -24,7 +24,6 @@ def MF_help_MB_lld(params):
     trans_prob = np.zeros(shape=[6, 3, 6]) + 1 / 6
 
     lld = 0
-    global_step = 0
     for episode in range(144):
         trial_end_state = trials_data[episode][-1][2]
 
@@ -35,7 +34,6 @@ def MF_help_MB_lld(params):
             now_state = transit[0]
             action_chosen = transit[1]
             step += 1
-            global_step += 1
 
             successor = trans_prob[now_state].copy()  # shape = 3, 6
             it = trans_prob[now_state].copy()  # shape = 3, 6

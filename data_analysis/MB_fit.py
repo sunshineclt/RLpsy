@@ -8,6 +8,7 @@ import numpy as np
 from scipy import optimize
 
 from utils import utils
+import utils.Params as Params
 
 
 def MB_lld(params):
@@ -17,11 +18,9 @@ def MB_lld(params):
     forget = params[3]
     forward_planning = 2
 
-    # model and parameters
     trans_prob = np.zeros(shape=[6, 3, 6]) + 1 / 6
 
     lld = 0
-
     for episode in range(144):
         trial_end_state = trials_data[episode][-1][2]
 
@@ -45,19 +44,6 @@ def MB_lld(params):
                         #                                   (r[state_1] + gamma * np.max(q_value_MB[state_1]))
                 q_value_MB = new_q_value
 
-            # successor = trans_prob[now_state].copy()  # shape = 3, 6
-            # it = trans_prob[now_state].copy()  # shape = 3, 6
-            # for iter_times in range(forward_planning - 1):
-            #     new_it = np.zeros(shape=[3, 6])
-            #     for action in range(3):
-            #         for old_state in range(6):
-            #             old_action = np.argmax(q_value_MF[trial_end_state][old_state])
-            #             new_it[action] += it[action, old_state] * trans_prob[old_state, old_action]  # vector calculation
-            #     assert np.all(np.sum(new_it, axis=1) - 1 < 1e-1)
-            #     it = new_it
-            #     successor += it * (gamma ** iter_times)
-            # q_value_MB = successor.dot(r)
-
             likelihood = utils.softmax(q_value_MB[now_state],
                                        tau)[action_chosen]
             if likelihood < 1e-200:
@@ -69,9 +55,10 @@ def MB_lld(params):
             trans_prob_to_new_state = trans_prob[now_state, action_chosen, new_state]
             trans_prob[now_state, action_chosen] *= (1 - eta)
             trans_prob[now_state, action_chosen, new_state] = trans_prob_to_new_state + eta * (1 - trans_prob_to_new_state)
+
+            # forget
             trans_prob = (1/6 - trans_prob) * forget + trans_prob
 
-    # print(lld)
     return lld
 
 
@@ -115,18 +102,18 @@ if __name__ == "__main__":
             res = optimize.minimize(f, x, bounds=bound)
             return res
 
-        pool = mp.Pool(12)
-        bounds = [(0, 1), (1e-5, 100), (0, 1), (0, 0.05), (0, 1)]
-        initial_value = []
-        for i in range(12):
-            initial_value.append(np.array([np.random.random(),
-                                           np.random.random() * 100 + 1e-5,
-                                           np.random.random(),
-                                           np.random.random() * 0.05,
-                                           np.random.random(),
-                                           np.random.random()]))
+        pool = mp.Pool(32)
+        bounds = [Params.PARAM_BOUNDS["eta"],
+                  Params.PARAM_BOUNDS["tau"],
+                  Params.PARAM_BOUNDS["gamma"],
+                  Params.PARAM_BOUNDS["forget_MB"]]
+        NUMBER_OF_INITIAL_VALUE = 1000
+        initial_value = np.zeros(shape=[NUMBER_OF_INITIAL_VALUE, len(bounds)])
+        for i in range(NUMBER_OF_INITIAL_VALUE):
+            for bound_index, bound in enumerate(bounds):
+                initial_value[i, bound_index] = np.random.random() * (bound[1] - bound[0]) + bound[0]
 
-        condition = [(MB_lld, initial[:4], bounds[:4]) for initial in initial_value]
+        condition = [(MB_lld, initial, bounds) for initial in initial_value]
 
         result = pool.map(minimize, condition)
         min_fun = 1e50
@@ -136,7 +123,6 @@ if __name__ == "__main__":
                 min_fun = result[i].fun
                 min_fun_x = result[i].x
 
-        # result = optimize.minimize(MF_lld, np.array([0.1, 1, 0.9, 0.001, 0.1][:4]), bounds=[(0, 1), (1e-5, 100), (0, 1), (0, 0.05), (0, 1)][:4])
         print("For participant %d, best fit lld is %.3f, eta=%.2f, tau=%.2f, gamma=%.2f, forget=%.5f" %
               (participant_id, min_fun, *min_fun_x))
         writer.writerow(dict(zip(fieldnames, [participant_id, min_fun, *min_fun_x])))

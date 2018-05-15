@@ -8,6 +8,7 @@ import numpy as np
 from scipy import optimize
 
 from utils import utils
+import utils.Params as Params
 
 
 def MF_help_MB_lld(params):
@@ -17,11 +18,8 @@ def MF_help_MB_lld(params):
     eta = params[3]
     forget_MF = params[4]
     forget_MB = params[5]
-    # I = params[6]
-    # k = params[7]
     forward_planning = 2
 
-    # model and parameters
     q_value_MF = np.zeros(shape=[3, 6, 3])
     trans_prob = np.zeros(shape=[6, 3, 6]) + 1 / 6
 
@@ -56,7 +54,7 @@ def MF_help_MB_lld(params):
                                        tau)[action_chosen]
 
             if likelihood < 1e-200:
-                lld += 1000000
+                lld += 460.517
             else:
                 lld -= np.log(likelihood)
 
@@ -67,15 +65,14 @@ def MF_help_MB_lld(params):
                 target = gamma * np.max(q_value_MF[trial_end_state][new_state])
             delta = target - q_value_MF[trial_end_state][now_state, action_chosen]
             q_value_MF[trial_end_state][now_state, action_chosen] += alpha * delta
+            # value forget
             q_value_MF *= (1 - forget_MF)
 
-            # if utils.softmax(q_value_MF[trial_end_state][last_state], tau)[last_action] > 0.7:
-                # lr = eta * utils.softmax(q_value_MF[trial_end_state][last_state], tau)[last_action]
-            lr = eta
             trans_prob_to_new_state = trans_prob[now_state, action_chosen, new_state]
-            trans_prob[now_state, action_chosen] *= (1 - lr)
-            trans_prob[now_state, action_chosen, new_state] = trans_prob_to_new_state + lr * (
+            trans_prob[now_state, action_chosen] *= (1 - eta)
+            trans_prob[now_state, action_chosen, new_state] = trans_prob_to_new_state + eta * (
                         1 - trans_prob_to_new_state)
+            # transition forget
             trans_prob = (1 / 6 - trans_prob) * forget_MB + trans_prob
 
     return lld
@@ -84,6 +81,9 @@ def MF_help_MB_lld(params):
 if __name__ == "__main__":
     time_stamp = datetime.datetime.now()
     print("start time: ", time_stamp.strftime('%H:%M:%S'))
+
+    NUMBER_OF_PARTICIPANT = 36
+    TRIAL_LENGTH = 144
 
     MFHMB_fit_result = open("MFHMB_result.csv", "w")
     fieldnames = ["participant",
@@ -96,9 +96,6 @@ if __name__ == "__main__":
                   "forget_MB"]
     writer = csv.DictWriter(MFHMB_fit_result, fieldnames)
     writer.writerow(dict(zip(fieldnames, fieldnames)))
-
-    NUMBER_OF_PARTICIPANT = 36
-    TRIAL_LENGTH = 144
 
     for lists in os.listdir("data/"):
         path = os.path.join("data/", lists)
@@ -125,21 +122,20 @@ if __name__ == "__main__":
             return res
 
 
-        pool = mp.Pool(6)
-        initial_value = []
-        for i in range(6):
-            initial_value.append(np.array([np.random.random(),
-                                           np.random.random() * 100 + 1e-5,
-                                           np.random.random(),
-                                           np.random.random(),
-                                           np.random.random() * 0.05,
-                                           np.random.random() * 0.05]))
+        pool = mp.Pool(120)
+        bounds = [Params.PARAM_BOUNDS["alpha"],
+                  Params.PARAM_BOUNDS["tau"],
+                  Params.PARAM_BOUNDS["gamma"],
+                  Params.PARAM_BOUNDS["eta"],
+                  Params.PARAM_BOUNDS["forget_MF"],
+                  Params.PARAM_BOUNDS["forget_MB"]]
+        NUMBER_OF_INITIAL_VALUE = 1000
+        initial_value = np.zeros(shape=[NUMBER_OF_INITIAL_VALUE, len(bounds)])
+        for i in range(NUMBER_OF_INITIAL_VALUE):
+            for bound_index, bound in enumerate(bounds):
+                initial_value[i, bound_index] = np.random.random() * (bound[1] - bound[0]) + bound[0]
 
-        bounds = [(0, 1), (1e-5, 100), (0, 1), (0, 1), (0, 0.05), (0, 0.05)]
         condition = [(MF_help_MB_lld, initial, bounds) for initial in initial_value]
-
-        # MFMB_lld([0.99, 0.11, 0.03, 1.00, 0.001, 0.001])
-        # break
 
         result = pool.map(minimize, condition)
         min_fun = 1e50

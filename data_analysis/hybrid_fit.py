@@ -8,6 +8,7 @@ import numpy as np
 from scipy import optimize
 
 from utils import utils
+import utils.Params as Params
 
 
 def hybrid_lld(params):
@@ -21,7 +22,6 @@ def hybrid_lld(params):
     forget_MB = params[7]
     forward_planning = 2
 
-    # model and parameters
     q_value_MF = np.zeros(shape=[3, 6, 3])
     trans_prob = np.zeros(shape=[6, 3, 6]) + 1 / 6
 
@@ -40,17 +40,29 @@ def hybrid_lld(params):
             step += 1
             global_step += 1
 
-            q_value_MB = np.zeros(shape=[6, 3])
-            for iter_times in range(forward_planning):
-                new_q_value = np.zeros(shape=[6, 3])
-                for state in range(6):
-                    for action in range(3):
-                        new_q_value[state, action] = np.sum(
-                            trans_prob[state, action] * (r + gamma * np.max(q_value_MB, axis=1)))
-                        # for state_1 in range(6):
-                        #     new_new_q_value[state, action] += trans_prob[state, action, state_1] * \
-                        #                                   (r[state_1] + gamma * np.max(q_value[state_1]))
-                q_value_MB = new_q_value
+            successor = trans_prob[now_state].copy()  # shape = 3, 6
+            it = trans_prob[now_state].copy()  # shape = 3, 6
+            for iter_times in range(forward_planning - 1):
+                new_it = np.zeros(shape=[3, 6])
+                for action in range(3):
+                    for old_state in range(6):
+                        old_action = np.argmax(q_value_MF[trial_end_state][old_state])
+                        new_it[action] += it[action, old_state] * trans_prob[old_state, old_action]  # vector calculation
+                assert np.all(np.sum(new_it, axis=1) - 1 < 1e-1)
+                it = new_it
+                successor += it * (gamma ** iter_times)
+            q_value_MB = successor.dot(r)
+            # q_value_MB = np.zeros(shape=[6, 3])
+            # for iter_times in range(forward_planning):
+            #     new_q_value = np.zeros(shape=[6, 3])
+            #     for state in range(6):
+            #         for action in range(3):
+            #             new_q_value[state, action] = np.sum(
+            #                 trans_prob[state, action] * (r + gamma * np.max(q_value_MB, axis=1)))
+            #             # for state_1 in range(6):
+            #             #     new_new_q_value[state, action] += trans_prob[state, action, state_1] * \
+            #             #                                   (r[state_1] + gamma * np.max(q_value[state_1]))
+            #     q_value_MB = new_q_value
 
             weight_MB = I * np.exp(-k * global_step)
             hybrid_q_value = q_value_MB[now_state] * weight_MB + (1 - weight_MB) * q_value_MF[trial_end_state][
@@ -61,7 +73,7 @@ def hybrid_lld(params):
                                        tau)[action_chosen]
 
             if likelihood < 1e-200:
-                lld += 1000000
+                lld += 460.517
             else:
                 lld -= np.log(likelihood)
 
@@ -71,13 +83,14 @@ def hybrid_lld(params):
                 target = gamma * np.max(q_value_MF[trial_end_state][new_state])
             delta = target - q_value_MF[trial_end_state][now_state, action_chosen]
             q_value_MF[trial_end_state][now_state, action_chosen] += alpha * delta
+            # value forget
             q_value_MF *= (1 - forget_MF)
 
-            new_state = transit[2]
             trans_prob_to_new_state = trans_prob[now_state, action_chosen, new_state]
             trans_prob[now_state, action_chosen] *= (1 - eta)
             trans_prob[now_state, action_chosen, new_state] = trans_prob_to_new_state + eta * (
                         1 - trans_prob_to_new_state)
+            # transition forget
             trans_prob = (1 / 6 - trans_prob) * forget_MB + trans_prob
 
     return lld
@@ -86,6 +99,9 @@ def hybrid_lld(params):
 if __name__ == "__main__":
     time_stamp = datetime.datetime.now()
     print("start time: ", time_stamp.strftime('%H:%M:%S'))
+
+    NUMBER_OF_PARTICIPANT = 36
+    TRIAL_LENGTH = 144
 
     hybrid_fit_result = open("hybrid_result.csv", "w")
     fieldnames = ["participant",
@@ -100,9 +116,6 @@ if __name__ == "__main__":
                   "forget_MB"]
     writer = csv.DictWriter(hybrid_fit_result, fieldnames)
     writer.writerow(dict(zip(fieldnames, fieldnames)))
-
-    NUMBER_OF_PARTICIPANT = 36
-    TRIAL_LENGTH = 144
 
     for lists in os.listdir("data/"):
         path = os.path.join("data/", lists)
@@ -129,19 +142,20 @@ if __name__ == "__main__":
             return res
 
 
-        pool = mp.Pool(12)
-        initial_value = []
-        for i in range(12):
-            initial_value.append(np.array([np.random.random(),
-                                           np.random.random() * 100 + 1e-5,
-                                           np.random.random(),
-                                           np.random.random(),
-                                           np.random.random(),
-                                           np.random.random() * 0.1,
-                                           np.random.random() * 0.05,
-                                           np.random.random() * 0.05]))
-
-        bounds = [(0, 1), (1e-5, 100), (0, 1), (0, 1), (0, 1), (0, 0.1), (0, 0.05), (0, 0.05)]
+        pool = mp.Pool(120)
+        bounds = [Params.PARAM_BOUNDS["alpha"],
+                  Params.PARAM_BOUNDS["tau"],
+                  Params.PARAM_BOUNDS["gamma"],
+                  Params.PARAM_BOUNDS["eta"],
+                  Params.PARAM_BOUNDS["I"],
+                  Params.PARAM_BOUNDS["k"],
+                  Params.PARAM_BOUNDS["forget_MF"],
+                  Params.PARAM_BOUNDS["forget_MB"]]
+        NUMBER_OF_INITIAL_VALUE = 1000
+        initial_value = np.zeros(shape=[NUMBER_OF_INITIAL_VALUE, len(bounds)])
+        for i in range(NUMBER_OF_INITIAL_VALUE):
+            for bound_index, bound in enumerate(bounds):
+                initial_value[i, bound_index] = np.random.random() * (bound[1] - bound[0]) + bound[0]
         condition = [(hybrid_lld, initial, bounds) for initial in initial_value]
 
         result = pool.map(minimize, condition)

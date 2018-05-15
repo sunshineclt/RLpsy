@@ -3,7 +3,7 @@
 #SBATCH -A hpc1406182255
 #SBATCH --partition=C032M0128G
 #SBATCH --qos=low
-#SBATCH -J RLpsy
+#SBATCH -J RLpsy_MF
 #SBATCH --get-user-env
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1

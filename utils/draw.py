@@ -131,19 +131,39 @@ def draw_participant_and_simulation(participant_data,
                      alpha=0.2)
     plt.plot(mean, linewidth=3.0, label="participant")
 
-    plt.vlines(36, 0, 30)
-    plt.vlines(72, 0, 30)
-    plt.vlines(108, 0, 30)
+    plt.vlines(36, 0, 50)
+    plt.vlines(72, 0, 50)
+    plt.vlines(108, 0, 50)
+    plt.xlim([0, 144])
+    plt.xticks(fontsize=20)
+    plt.yticks(fontsize=20)
+    plt.xlabel("trial", fontsize=20)
     if data_name == "step":
         plt.ylim([0, 30])
+        plt.ylabel("Step", fontsize=20)
     elif data_name == "time":
         plt.ylim([0, 50])
+        plt.ylabel("time (s)", fontsize=20)
     elif data_name == "normalized_time":
         plt.ylim([0, 4])
+        plt.ylabel("time (s)", fontsize=20)
     elif data_name.find("optimal") != -1:
         plt.ylim([0, 1])
+        if data_name.find("inner") != -1:
+            plt.ylabel("Inner Optimal Percentage", fontsize=20)
+        elif data_name.find("outer") != -1:
+            plt.ylabel("Outer Optimal Percentage", fontsize=20)
+        elif data_name.find("last") != -1:
+            plt.ylabel("Last Optimal Percentage", fontsize=20)
+        else:
+            plt.ylabel("Optimal Percentage", fontsize=20)
     plt.legend()
-    plt.title(title)
+    # plt.title(title)
+    ax = plt.gca()
+    ax.spines["right"].set_color("none")
+    ax.spines["top"].set_color("none")
+    ax.spines["bottom"].set_linewidth(3)
+    ax.spines["left"].set_linewidth(3)
     if save:
-        plt.savefig(save_path + data_name + ".png")
+        plt.savefig(save_path + data_name + ".jpg")
     plt.show()

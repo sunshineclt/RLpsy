@@ -17,8 +17,8 @@ def MF_help_MB_lld(params):
     eta = params[3]
     forget_MF = params[4]
     forget_MB = params[5]
-    I = params[6]
-    k = params[7]
+    # I = params[6]
+    # k = params[7]
     forward_planning = 2
 
     # model and parameters
@@ -52,10 +52,7 @@ def MF_help_MB_lld(params):
                 successor += it * (gamma ** iter_times)
             q_value_MB = successor.dot(r)
 
-            weight_MB = I * (-np.exp(-k * global_step) + 1)
-            hybrid_q_value = q_value_MB * weight_MB + (1 - weight_MB) * q_value_MF[trial_end_state][now_state]
-
-            likelihood = utils.softmax(hybrid_q_value,
+            likelihood = utils.softmax(q_value_MB,
                                        tau)[action_chosen]
 
             if likelihood < 1e-200:
@@ -88,7 +85,7 @@ if __name__ == "__main__":
     time_stamp = datetime.datetime.now()
     print("start time: ", time_stamp.strftime('%H:%M:%S'))
 
-    hybrid_fit_result = open("hybrid_result.csv", "w")
+    MFHMB_fit_result = open("MFHMB_result.csv", "w")
     fieldnames = ["participant",
                   "nlld",
                   "alpha",
@@ -97,7 +94,7 @@ if __name__ == "__main__":
                   "eta",
                   "forget_MF",
                   "forget_MB"]
-    writer = csv.DictWriter(hybrid_fit_result, fieldnames)
+    writer = csv.DictWriter(MFHMB_fit_result, fieldnames)
     writer.writerow(dict(zip(fieldnames, fieldnames)))
 
     NUMBER_OF_PARTICIPANT = 36
@@ -128,18 +125,17 @@ if __name__ == "__main__":
             return res
 
 
-        pool = mp.Pool(12)
-        initial_value = [np.array([0.3, 1, 0.9, 0.3, 0.001, 0.001, 1, 0.01]),
-                         np.array([0.3, 1, 0.9, 0.5, 0.001, 0.001, 1, 0.01]),
-                         np.array([0.3, 1, 0.9, 0.7, 0.001, 0.001, 1, 0.01]),
-                         np.array([0.5, 1, 0.9, 0.3, 0.001, 0.001, 1, 0.01]),
-                         np.array([0.5, 1, 0.9, 0.5, 0.001, 0.001, 1, 0.01]),
-                         np.array([0.5, 1, 0.9, 0.7, 0.001, 0.001, 1, 0.01]),
-                         np.array([0.7, 1, 0.9, 0.3, 0.001, 0.001, 1, 0.01]),
-                         np.array([0.7, 1, 0.9, 0.5, 0.001, 0.001, 1, 0.01]),
-                         np.array([0.7, 1, 0.9, 0.7, 0.001, 0.001, 1, 0.01])]
+        pool = mp.Pool(6)
+        initial_value = []
+        for i in range(6):
+            initial_value.append(np.array([np.random.random(),
+                                           np.random.random() * 100 + 1e-5,
+                                           np.random.random(),
+                                           np.random.random(),
+                                           np.random.random() * 0.05,
+                                           np.random.random() * 0.05]))
 
-        bounds = [(0, 1), (1e-5, 100), (0, 1), (0, 1), (0, 0.01), (0, 0.01), (0, 1), (0, 10)]
+        bounds = [(0, 1), (1e-5, 100), (0, 1), (0, 1), (0, 0.05), (0, 0.05)]
         condition = [(MF_help_MB_lld, initial, bounds) for initial in initial_value]
 
         # MFMB_lld([0.99, 0.11, 0.03, 1.00, 0.001, 0.001])
@@ -153,7 +149,7 @@ if __name__ == "__main__":
                 min_fun = result[i].fun
                 min_fun_x = result[i].x
         print(
-            "For participant %d, best fit lld is %.3f, alpha=%.2f, tau=%.2f, gamma=%.2f, eta=%.2f, forget_MF=%.5f, forget_MB=%.5f, I=%.2f, k=%.2f" %
+            "For participant %d, best fit lld is %.3f, alpha=%.2f, tau=%.2f, gamma=%.2f, eta=%.2f, forget_MF=%.5f, forget_MB=%.5f" %
             (participant_id, min_fun, *min_fun_x))
         writer.writerow(dict(zip(fieldnames, [participant_id, min_fun, *min_fun_x])))
 

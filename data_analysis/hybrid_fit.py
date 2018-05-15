@@ -65,7 +65,7 @@ def hybrid_lld(params):
             #     q_value_MB = new_q_value
 
             weight_MB = I * np.exp(-k * global_step)
-            hybrid_q_value = q_value_MB[now_state] * weight_MB + (1 - weight_MB) * q_value_MF[trial_end_state][
+            hybrid_q_value = q_value_MB * weight_MB + (1 - weight_MB) * q_value_MF[trial_end_state][
                 now_state]
             likelihood = utils.softmax(np.array([hybrid_q_value[0],
                                                  hybrid_q_value[1],

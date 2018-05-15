@@ -1,5 +1,5 @@
 import pandas as pd
-from statsmodels.formula.api import ols
+from statsmodels.formula.api import gls
 import seaborn as sns
 import matplotlib.pyplot as plt
 
@@ -8,36 +8,52 @@ print(data.head())
 
 group = data.groupby(["block", "condition"])
 
-
-model = ols("optimal_p ~ step + block", data[data["condition"] == "random"]).fit()
+model = gls("step ~ timestep + block", data[data["condition"] == "random"]).fit()
 print(model.summary())
 
-model = ols("optimal_p ~ step + block", data[data["condition"] == "block"]).fit()
+model = gls("reaction_time ~ timestep + block", data[data["condition"] == "random"]).fit()
 print(model.summary())
 
-model = ols("optimal_inner ~ step + block", data[data["condition"] == "random"]).fit()
+model = gls("normalized_reaction_time ~ timestep + block", data[data["condition"] == "random"]).fit()
 print(model.summary())
-
-model = ols("optimal_inner ~ step + block", data[data["condition"] == "block"]).fit()
+# model = gls("step ~ timestep + block", data[data["condition"] == "block"]).fit()
+# print(model.summary())
+#
+# model = gls("reaction_time ~ timestep + block", data[data["condition"] == "block"]).fit()
+# print(model.summary())
+#
+# model = gls("normalized_reaction_time ~ timestep + block", data[data["condition"] == "block"]).fit()
+# print(model.summary())
+#
+model = gls("optimal_p ~ timestep + block", data[data["condition"] == "random"]).fit()
 print(model.summary())
-
-model = ols("optimal_outer ~ step + block", data[data["condition"] == "random"]).fit()
+#
+# model = gls("optimal_p ~ timestep + block", data[data["condition"] == "block"]).fit()
+# print(model.summary())
+#
+model = gls("optimal_inner ~ timestep + block", data[data["condition"] == "random"]).fit()
 print(model.summary())
-
-model = ols("optimal_outer ~ step + block", data[data["condition"] == "block"]).fit()
+#
+# model = gls("optimal_inner ~ timestep + block", data[data["condition"] == "block"]).fit()
+# print(model.summary())
+#
+model = gls("optimal_outer ~ timestep + block", data[data["condition"] == "random"]).fit()
 print(model.summary())
-
-model = ols("optimal_last ~ step + block", data[data["condition"] == "random"]).fit()
+#
+# model = gls("optimal_outer ~ timestep + block", data[data["condition"] == "block"]).fit()
+# print(model.summary())
+#
+model = gls("optimal_last ~ timestep + block", data[data["condition"] == "random"]).fit()
 print(model.summary())
-
-model = ols("optimal_last ~ step + block", data[data["condition"] == "block"]).fit()
-print(model.summary())
-
-model = ols("optimal_p ~ step + block", data[(data["step"] <= 10) & (data["condition"] == "random")]).fit()
-print(model.summary())
-
-model = ols("optimal_p ~ step + block", data[(data["step"] <= 10) & (data["condition"] == "block")]).fit()
-print(model.summary())
-
-g = sns.lmplot(x="optimal_inner", y="optimal_outer", data=data, hue="condition")
-plt.show()
+#
+# model = gls("optimal_last ~ timestep + block", data[data["condition"] == "block"]).fit()
+# print(model.summary())
+#
+# model = gls("optimal_p ~ timestep + block", data[(data["timestep"] <= 10) & (data["condition"] == "random")]).fit()
+# print(model.summary())
+#
+# model = gls("optimal_p ~ timestep + block", data[(data["timestep"] <= 10) & (data["condition"] == "block")]).fit()
+# print(model.summary())
+#
+# g = sns.lmplot(x="optimal_inner", y="optimal_outer", data=data, hue="condition")
+# plt.show()

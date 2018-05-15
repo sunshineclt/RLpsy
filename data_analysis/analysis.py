@@ -18,21 +18,21 @@ def transform_and_plot(data, data_name):
     draw_metrics(randomized_data,
                  data_name,
                  "%s under %s condition in participants" % (data_name, "randomized"),
-                 extra_data_names=["MF_randomized", "optimal_randomized", "random_randomized", "MB_randomized"],
+                 # extra_data_names=["MF_randomized", "optimal_randomized", "random_randomized", "MB_randomized"],
                  smooth=True,
                  save_npy=False,
                  draw_individual=True,
-                 annotate_block_mean=True)
+                 annotate_block_mean=False)
 
     block_data = data[1::2, :]
     draw_metrics(block_data,
                  data_name,
                  "%s under %s condition in participants" % (data_name, "block"),
-                 extra_data_names=["MF_block", "optimal_block", "random_block", "MB_block"],
+                 # extra_data_names=["MF_block", "optimal_block", "random_block", "MB_block"],
                  smooth=True,
                  save_npy=False,
                  draw_individual=True,
-                 annotate_block_mean=True)
+                 annotate_block_mean=False)
 
 
 if __name__ == "__main__":
@@ -48,7 +48,7 @@ if __name__ == "__main__":
     all_optimal_probabilities_outer = [[] for _ in range(NUMBER_OF_PARTICIPANT)]
     all_optimal_probabilities_last = [[] for _ in range(NUMBER_OF_PARTICIPANT)]
     optimal_data_frame = pandas.DataFrame(
-        columns=["optimal_p", "optimal_inner", "optimal_outer", "optimal_last", "step", "block", "condition", "participant"])
+        columns=["step", "reaction_time", "normalized_reaction_time", "optimal_p", "optimal_inner", "optimal_outer", "optimal_last", "timestep", "block", "condition", "participant"])
 
     for lists in os.listdir("data/"):
         path = os.path.join("data/", lists)
@@ -92,16 +92,20 @@ if __name__ == "__main__":
         for trial in range(TRIAL_LENGTH):
             block = trial // 36
             timestep = trial % 36
-            # optimal_data_frame = optimal_data_frame.append({"optimal_p": result[0][trial],
-            #                                                 "optimal_inner": result[1]["inner"][trial],
-            #                                                 "optimal_outer": result[1]["outer"][trial],
-            #                                                 "optimal_last": result[1]["last"][trial],
-            #                                                 "step": timestep,
-            #                                                 "block": block,
-            #                                                 "condition": (
-            #                                                     "random" if participant_id % 2 == 0 else "block"),
-            #                                                 "participant": participant_id},
-            #                                                ignore_index=True)
+            optimal_data_frame = optimal_data_frame.append({"step": steps[trial],
+                                                            "reaction_time": times[trial],
+                                                            "normalized_reaction_time": normalized_times[trial],
+                                                            "optimal_p": result[0][trial],
+                                                            "optimal_inner": result[1]["inner"][trial],
+                                                            "optimal_outer": result[1]["outer"][trial],
+                                                            "optimal_last": result[1]["last"][trial],
+                                                            "timestep": timestep,
+                                                            "trial": trial,
+                                                            "block": block,
+                                                            "condition": (
+                                                                "random" if participant_id % 2 == 0 else "block"),
+                                                            "participant": participant_id},
+                                                           ignore_index=True)
 
     transform_and_plot(all_steps, "step")
     transform_and_plot(all_times, "time")
@@ -110,7 +114,7 @@ if __name__ == "__main__":
     transform_and_plot(all_optimal_probabilities_inner, "optimal_inner")
     transform_and_plot(all_optimal_probabilities_outer, "optimal_outer")
     transform_and_plot(all_optimal_probabilities_last, "optimal_last")
-
+    #
     # for participant in range(NUMBER_OF_PARTICIPANT):
     #     if np.sum(np.array(all_optimal_probabilities[participant]) < 0.2) > 20:
     #         print(participant)

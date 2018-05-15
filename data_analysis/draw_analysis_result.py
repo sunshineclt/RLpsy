@@ -27,6 +27,5 @@ def transform_and_plot(data, data_name):
 
 if __name__ == "__main__":
     saver = DataSaver.load_from_file("analysis_result.pkl")
-    # DRAW FIGURE
     for metric in saver.data_names:
         transform_and_plot(saver.get_data(metric), metric)

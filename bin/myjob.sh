@@ -15,5 +15,5 @@
 module load anaconda/3-4.4.0.1
 source activate lab
 export PYTHONPATH=/gpfs/share/home/1400013706/RLpsy:${PYTHONPATH}
-
-python data_analysis/MF_fit.py
+cd ~/RLpsy/data_analysis
+python MF_fit.py

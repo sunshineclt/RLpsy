@@ -117,7 +117,7 @@ if __name__ == "__main__":
             res = optimize.minimize(f, x, bounds=bound)
             return res
 
-        pool = mp.Pool(12)
+        pool = mp.Pool(32)
         bounds = [Params.PARAM_BOUNDS["alpha"],
                   Params.PARAM_BOUNDS["tau"],
                   Params.PARAM_BOUNDS["gamma"],

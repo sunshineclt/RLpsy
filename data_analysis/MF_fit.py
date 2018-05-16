@@ -3,15 +3,12 @@ import datetime
 import json
 import multiprocessing as mp
 import os
-import shutil
 
 import numpy as np
 from scipy import optimize
 
 from utils import utils
 import utils.Params as Params
-from utils.draw import draw_participant_and_simulation
-from simulate.simulate_MF import simulate_MF
 from data_analysis.analysis_optimal import optimal_probability
 
 
@@ -143,72 +140,6 @@ if __name__ == "__main__":
         print("For participant %d, best fit lld is %.3f, alpha=%.2f, tau=%.2f, gamma=%.2f, forget=%.5f" %
               (participant_id, min_fun, *min_fun_x))
         writer.writerow(dict(zip(fieldnames, [participant_id, min_fun, *min_fun_x])))
-
-        # Use the fitted model to simulate
-        # simulate_MF(randomized=participant_id % 2 == 0,
-        #             alpha=result.x[0],
-        #             tau=result.x[1],
-        #             repeat=1,
-        #             gamma=result.x[2],
-        #             forget=result.x[3],
-        #             path="simulate_data/%02d/" % participant_id)
-        # BASE_PATH = "simulate_data/%02d/" % participant_id
-        # NUMBER_OF_SIMULATION = 1
-        #
-        # optimal_analysis_simulation = {"optimal": [], "optimal_inner": [], "optimal_outer": [], "optimal_last": []}
-        # for file in os.listdir(BASE_PATH):
-        #     path = os.path.join(BASE_PATH, file)
-        #     print("Loading ", path)
-        #     split = file.split("_")
-        #     simulation_id = int(split[0])
-        #
-        #     rawFile = open(path, "r")
-        #     reader = csv.DictReader(rawFile, delimiter="#")
-        #     trials_data = []
-        #     for row in reader:
-        #         trial = row["trial_data"]
-        #         if trial != "--":
-        #             transformed_trial = json.loads(trial)
-        #             trials_data.append(transformed_trial)
-        #     trials_data = trials_data[:TRIAL_LENGTH]
-        #
-        #     result = optimal_probability(simulation_id, trials_data, is_simulate=True,
-        #                                  is_randomized=participant_id % 2 == 0)
-        #     optimal_analysis_simulation["optimal"].append(result[0])
-        #     optimal_analysis_simulation["optimal_inner"].append(result[1]["inner"])
-        #     optimal_analysis_simulation["optimal_outer"].append(result[1]["outer"])
-        #     optimal_analysis_simulation["optimal_last"].append(result[1]["last"])
-        #
-        # dir_path = "participant_simulation_comparison/%02d/" % participant_id
-        # if not os.path.isdir(dir_path):
-        #     os.makedirs(dir_path)
-        # else:
-        #     shutil.rmtree(dir_path)
-        #     os.makedirs(dir_path)
-        # metrics = "optimal"
-        # draw_participant_and_simulation(np.array(optimal_analysis_result[0]),
-        #                                 np.array(optimal_analysis_simulation[metrics]),
-        #                                 metrics,
-        #                                 metrics + " in participant and simulation",
-        #                                 save_path=dir_path)
-        # metrics = "optimal_inner"
-        # draw_participant_and_simulation(np.array(optimal_analysis_result[1]["inner"]),
-        #                                 np.array(optimal_analysis_simulation[metrics]),
-        #                                 metrics,
-        #                                 metrics + " in participant and simulation",
-        #                                 save_path=dir_path)
-        # metrics = "optimal_outer"
-        # draw_participant_and_simulation(np.array(optimal_analysis_result[1]["outer"]),
-        #                                 np.array(optimal_analysis_simulation[metrics]),
-        #                                 metrics,
-        #                                 metrics + " in participant and simulation",
-        #                                 save_path=dir_path)
-        # metrics = "optimal_last"
-        # draw_participant_and_simulation(np.array(optimal_analysis_result[1]["last"]),
-        #                                 np.array(optimal_analysis_simulation[metrics]),
-        #                                 metrics,
-        #                                 metrics + " in participant and simulation",
-        #                                 save_path=dir_path)
 
     time_stamp = datetime.datetime.now()
     print("end time: ", time_stamp.strftime('%H:%M:%S'))

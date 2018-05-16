@@ -17,7 +17,8 @@ def simulate_MF(randomized=True,
                 repeat=50,
                 gamma=1,
                 forget=0.001,
-                path=None):
+                path=None,
+                seed=None):
 
     if path:
         dir_path = path
@@ -31,8 +32,12 @@ def simulate_MF(randomized=True,
 
     for time in range(0, repeat):
 
-        np.random.seed(time)
-        random.seed(time)
+        if seed:
+            np.random.seed(seed)
+            random.seed(seed)
+        else:
+            np.random.seed(time)
+            random.seed(time)
         np.random.shuffle([1, 2, 3, 4, 5, 6])
 
         task_order = []
@@ -80,9 +85,7 @@ def simulate_MF(randomized=True,
                 step += 1
 
                 action = utils.random_pick([0, 1, 2],
-                                           utils.softmax(np.array([q_value[trial_end_state][now_state, 0],
-                                                                   q_value[trial_end_state][now_state, 1],
-                                                                   q_value[trial_end_state][now_state, 2]]),
+                                           utils.softmax(q_value[trial_end_state][now_state],
                                                          tau))
 
                 new_state = transition.step(now_state, action)
@@ -94,11 +97,6 @@ def simulate_MF(randomized=True,
                     target = gamma * np.max(q_value[trial_end_state][new_state])
                 delta = target - q_value[trial_end_state][now_state, action]
                 q_value[trial_end_state][now_state, action] += alpha * delta
-
-#                if trial_end_state == 2 and now_state == 1 and action == 2:
-#                    print(new_state)
-#                    print(np.max(q_value[trial_end_state][new_state]))
-#                print(q_value[2][1])
 
                 now_state = new_state
                 q_value *= (1 - forget)

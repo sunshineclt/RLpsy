@@ -139,17 +139,22 @@ def draw_participant_and_simulation(participant_data,
                                     trial_length=144,
                                     save=True,
                                     save_path=None):
-    mean = participant_data
+    mean = np.mean(participant_data, axis=0)
+    std = np.std(participant_data, axis=0)
     simulation_mean = np.mean(simulation_data, axis=0)
     simulation_std = np.std(simulation_data, axis=0)
     if smooth:
         mean = savitzky_golay(mean, SAVITZKY_GOLAY_WINDOW, SAVITZKY_GOLAY_ORDER)
         simulation_mean = savitzky_golay(simulation_mean, SAVITZKY_GOLAY_WINDOW, SAVITZKY_GOLAY_ORDER)
+    plt.plot(mean, linewidth=3.0, label="participant")
+    plt.fill_between(range(0, trial_length),
+                     mean - std, mean + std,
+                     alpha=0.2)
     plt.plot(simulation_mean, linewidth=3.0, label="simulation")
     plt.fill_between(range(0, trial_length),
                      simulation_mean - simulation_std, simulation_mean + simulation_std,
                      alpha=0.2)
-    plt.plot(mean, linewidth=3.0, label="participant")
+
 
     plt.vlines(36, 0, 50)
     plt.vlines(72, 0, 50)

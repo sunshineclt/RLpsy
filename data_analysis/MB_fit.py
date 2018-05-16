@@ -116,6 +116,8 @@ if __name__ == "__main__":
         condition = [(MB_lld, initial, bounds) for initial in initial_value]
 
         result = pool.map(minimize, condition)
+        pool.close()
+
         min_fun = 1e50
         min_fun_x = 0
         for i in range(len(initial_value)):

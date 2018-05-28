@@ -80,7 +80,7 @@ if __name__ == "__main__":
     TRIAL_LENGTH = 144
     Q_LEARNING = True
 
-    MF_fit_result = open("MF_fit_result.csv", "w")
+    MF_fit_result = open("Gated_MF_fit_result.csv", "w")
     fieldnames = ["participant",
                   "nlld",
                   "alpha",

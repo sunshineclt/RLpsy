@@ -16,10 +16,15 @@ def simulate_MB(randomized=True,
                 tau=1,
                 forward_planning=6,
                 repeat=50,
-                gamma=0.9):
+                gamma=0.9,
+                forget=0.001,
+                path=None,
+                seed=None):
 
-    dir_path = "data/MB/eta%.1f_tau%.1f_forward%d/" % (eta, tau, forward_planning) + (
-        "randomized" if randomized else "block") + "/"
+    if path:
+        dir_path = path
+    else:
+        dir_path = "data/MB/eta%.1f_tau%.1f_forward%d/" % (eta, tau, forward_planning) + ("randomized" if randomized else "block") + "/"
     if not os.path.isdir(dir_path):
         os.makedirs(dir_path)
     else:
@@ -28,8 +33,12 @@ def simulate_MB(randomized=True,
 
     for time in range(0, repeat):
 
-        np.random.seed(time)
-        random.seed(time)
+        if seed:
+            np.random.seed(seed)
+            random.seed(seed)
+        else:
+            np.random.seed(time)
+            random.seed(time)
         np.random.shuffle([1, 2, 3, 4, 5, 6])
 
         task_order = []
@@ -90,9 +99,7 @@ def simulate_MB(randomized=True,
                     q_value = new_q_value
 
                 action = utils.random_pick([0, 1, 2],
-                                           utils.softmax(np.array([q_value[now_state, 0],
-                                                                   q_value[now_state, 1],
-                                                                   q_value[now_state, 2]]),
+                                           utils.softmax(q_value[now_state],
                                                          tau))
 
                 new_state = transition.step(now_state, action)
@@ -102,6 +109,9 @@ def simulate_MB(randomized=True,
                 trans_prob[now_state, action] *= (1 - eta)
                 trans_prob[now_state, action, new_state] = trans_prob_to_new_state + eta * (1 - trans_prob_to_new_state)
 
+                # forget
+                trans_prob = (1 / 6 - trans_prob) * forget + trans_prob
+
                 now_state = new_state
 
             # raw_data storing
@@ -110,10 +120,10 @@ def simulate_MB(randomized=True,
             timesteps_record.append(step)
 
         trials.saveAsWideText(dir_path + "/" + str(time) + "_simulate.csv", delim="#")
-        print("eta: %.1f, tau: %.1f, forward: %d, %s, times: %d, Total Reward: %d" %
-              (eta, tau, forward_planning,
-               ("randomized" if randomized else "block"),
-               time, total_reward))
+        # print("eta: %.1f, tau: %.1f, forward: %d, %s, times: %d, Total Reward: %d" %
+        #       (eta, tau, forward_planning,
+        #        ("randomized" if randomized else "block"),
+        #        time, total_reward))
 
 
 if __name__ == "__main__":

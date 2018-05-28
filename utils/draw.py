@@ -97,7 +97,6 @@ def draw_different_params(data,
                           trial_length=144,
                           show=True,
                           numer_of_participant=50):
-
     plt.figure(figsize=[40, 6], dpi=80)
     for index1, eta in enumerate(data):
         plt.subplot(1, 6, index1 + 1)
@@ -134,15 +133,17 @@ def draw_different_params(data,
 def draw_participant_and_simulation(participant_data,
                                     simulation_data,
                                     data_name,
-                                    title,
+                                    title=None,
                                     smooth=True,
                                     trial_length=144,
                                     save=True,
-                                    save_path=None):
+                                    save_path=None,
+                                    show=False):
+    plt.figure(figsize=[8, 6], dpi=80)
     mean = np.mean(participant_data, axis=0)
-    std = np.std(participant_data, axis=0)
+    std = np.std(participant_data, axis=0) / np.sqrt(18)
     simulation_mean = np.mean(simulation_data, axis=0)
-    simulation_std = np.std(simulation_data, axis=0)
+    simulation_std = np.std(simulation_data, axis=0) / np.sqrt(18)
     if smooth:
         mean = savitzky_golay(mean, SAVITZKY_GOLAY_WINDOW, SAVITZKY_GOLAY_ORDER)
         simulation_mean = savitzky_golay(simulation_mean, SAVITZKY_GOLAY_WINDOW, SAVITZKY_GOLAY_ORDER)
@@ -154,7 +155,6 @@ def draw_participant_and_simulation(participant_data,
     plt.fill_between(range(0, trial_length),
                      simulation_mean - simulation_std, simulation_mean + simulation_std,
                      alpha=0.2)
-
 
     plt.vlines(36, 0, 50)
     plt.vlines(72, 0, 50)
@@ -175,20 +175,22 @@ def draw_participant_and_simulation(participant_data,
     elif data_name.find("optimal") != -1:
         plt.ylim([0, 1])
         if data_name.find("inner") != -1:
-            plt.ylabel("Inner Optimal Percentage", fontsize=20)
+            plt.ylabel("Inner Optimal P", fontsize=20)
         elif data_name.find("outer") != -1:
-            plt.ylabel("Outer Optimal Percentage", fontsize=20)
+            plt.ylabel("Outer Optimal P", fontsize=20)
         elif data_name.find("last") != -1:
-            plt.ylabel("Last Optimal Percentage", fontsize=20)
+            plt.ylabel("Last Optimal P", fontsize=20)
         else:
-            plt.ylabel("Optimal Percentage", fontsize=20)
+            plt.ylabel("Optimal P", fontsize=20)
     plt.legend()
-    # plt.title(title)
+    # if title:
+    #     plt.title(title)
     ax = plt.gca()
     ax.spines["right"].set_color("none")
     ax.spines["top"].set_color("none")
     ax.spines["bottom"].set_linewidth(3)
     ax.spines["left"].set_linewidth(3)
     if save:
-        plt.savefig(save_path + data_name + ".jpg")
-    plt.show()
+        plt.savefig(save_path + title + ".jpg")
+    if show:
+        plt.show()

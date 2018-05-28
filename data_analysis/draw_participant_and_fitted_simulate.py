@@ -6,8 +6,6 @@ import matplotlib.pyplot as plt
 participant_analysis_data = DataSaver.load_from_file("analysis_result.pkl")
 simulate_analysis_data = {"MF": DataSaver.load_from_file("MF_simulate_analysis_result.pkl"),
                           "MB": DataSaver.load_from_file("MB_simulate_analysis_result.pkl")}
-MF_simulate_analysis_data = DataSaver.load_from_file("MF_simulate_analysis_result.pkl")
-MB_simulate_analysis_data = DataSaver.load_from_file("MB_simulate_analysis_result.pkl")
 
 
 def draw(metric, method, randomized=True):

@@ -185,7 +185,7 @@ def draw_participant_and_simulation(participant_data,
         plt.ylim([0, 4])
         plt.ylabel("time (s)", fontsize=20)
     elif data_name.find("optimal") != -1:
-        plt.ylim([0, 1])
+        plt.ylim([0, 1.2])
         if data_name.find("inner") != -1:
             plt.ylabel("Inner Optimal P", fontsize=20)
         elif data_name.find("outer") != -1:
@@ -194,7 +194,7 @@ def draw_participant_and_simulation(participant_data,
             plt.ylabel("Last Optimal P", fontsize=20)
         else:
             plt.ylabel("Optimal P", fontsize=20)
-    plt.legend(loc="lower right")
+    plt.legend(loc="upper right")
     if title:
         plt.title(title)
     ax = plt.gca()

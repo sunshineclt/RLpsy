@@ -7,7 +7,7 @@ from simulate.simulate_MB import simulate_MB
 from utils.DataSaver import DataSaver
 from data_analysis.analysis_optimal import optimal_probability
 
-MODEL_NAME = "MF"
+MODEL_NAME = "MB"
 
 f = open(MODEL_NAME + "_fit_result.csv", "r")
 fit_result = csv.DictReader(f)
@@ -26,22 +26,22 @@ for participant_param in fit_result:
     participant_id = int(participant_param["participant"])
     # Use the fitted model to simulate
     BASE_PATH = "simulate_data/%s/%02d/" % (MODEL_NAME, participant_id)
-    simulate_MF(randomized=participant_id % 2 == 0,
-                alpha=float(participant_param["alpha"]),
-                tau=float(participant_param["tau"]),
-                repeat=NUMBER_OF_REPEAT,
-                gamma=float(participant_param["gamma"]),
-                forget=float(participant_param["forget_MF"]),
-                path=BASE_PATH,
-                seed=participant_id)
-    # simulate_MB(randomized=participant_id % 2 == 0,
-    #             eta=float(participant_param["eta"]),
+    # simulate_MF(randomized=participant_id % 2 == 0,
+    #             alpha=float(participant_param["alpha"]),
     #             tau=float(participant_param["tau"]),
-    #             repeat=1,
+    #             repeat=NUMBER_OF_REPEAT,
     #             gamma=float(participant_param["gamma"]),
-    #             forget=float(participant_param["forget_MB"]),
+    #             forget=float(participant_param["forget_MF"]),
     #             path=BASE_PATH,
     #             seed=participant_id)
+    simulate_MB(randomized=participant_id % 2 == 0,
+                eta=float(participant_param["eta"]),
+                tau=float(participant_param["tau"]),
+                repeat=1,
+                gamma=float(participant_param["gamma"]),
+                forget=float(participant_param["forget_MB"]),
+                path=BASE_PATH,
+                seed=participant_id)
 
     for file in os.listdir(BASE_PATH):
         path = os.path.join(BASE_PATH, file)

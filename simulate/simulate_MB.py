@@ -68,6 +68,8 @@ def simulate_MB(randomized=True,
         timesteps_record = []
         episode = 0
         total_reward = 0
+        random.seed(datetime.datetime.now())
+        np.random.seed()
 
         # model and parameters
         trans_prob = np.zeros(shape=[6, 3, 6]) + 1 / 6

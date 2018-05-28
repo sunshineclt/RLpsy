@@ -67,6 +67,8 @@ def simulate_MF(randomized=True,
         timesteps_record = []
         episode = 0
         total_reward = 0
+        random.seed(datetime.datetime.now())
+        np.random.seed()
 
         # model and parameters
         q_value = np.zeros(shape=[3, 6, 3])

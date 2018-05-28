@@ -26,14 +26,14 @@ for participant_param in fit_result:
     participant_id = int(participant_param["participant"])
     # Use the fitted model to simulate
     BASE_PATH = "simulate_data/%s/%02d/" % (MODEL_NAME, participant_id)
-    # simulate_MF(randomized=participant_id % 2 == 0,
-    #             alpha=float(participant_param["alpha"]),
-    #             tau=float(participant_param["tau"]),
-    #             repeat=NUMBER_OF_REPEAT,
-    #             gamma=float(participant_param["gamma"]),
-    #             forget=float(participant_param["forget_MF"]),
-    #             path=BASE_PATH,
-    #             seed=participant_id)
+    simulate_MF(randomized=participant_id % 2 == 0,
+                alpha=float(participant_param["alpha"]),
+                tau=float(participant_param["tau"]),
+                repeat=NUMBER_OF_REPEAT,
+                gamma=float(participant_param["gamma"]),
+                forget=float(participant_param["forget_MF"]),
+                path=BASE_PATH,
+                seed=participant_id)
     # simulate_MB(randomized=participant_id % 2 == 0,
     #             eta=float(participant_param["eta"]),
     #             tau=float(participant_param["tau"]),

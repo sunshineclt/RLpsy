@@ -15,27 +15,27 @@ def draw(metric, method, randomized=True):
                                         metric,
                                         title=metric + "_in_" + method + "_method_randomized_condition",
                                         save_path="participant_simulation_comparison_all/",
-                                        save=True,
-                                        show=True)
+                                        save=False,
+                                        show=False)
     else:
         draw_participant_and_simulation(participant_analysis_data.get_data(metric)[1::2, :],
                                         simulate_analysis_data[method].get_data(metric)[1::2, :],
                                         metric,
                                         title=metric + "_in_" + method + "_method_block_condition",
                                         save_path="participant_simulation_comparison_all/",
-                                        save=True,
-                                        show=True)
+                                        save=False,
+                                        show=False)
 
 
 for metric_name in ["optimal", "optimal_inner", "optimal_outer", "optimal_last"]:
-    # plt.figure(figsize=[10, 8], dpi=80)
-    # plt.subplot(221)
+    plt.figure(figsize=[10, 8], dpi=80)
+    plt.subplot(221)
     draw(metric_name, "MF", randomized=True)
-    # plt.subplot(222)
+    plt.subplot(222)
     draw(metric_name, "MB", randomized=True)
-    # plt.subplot(223)
+    plt.subplot(223)
     draw(metric_name, "MF", randomized=False)
-    # plt.subplot(224)
+    plt.subplot(224)
     draw(metric_name, "MB", randomized=False)
-    # plt.tight_layout()
-    # plt.show()
+    plt.tight_layout()
+    plt.show()

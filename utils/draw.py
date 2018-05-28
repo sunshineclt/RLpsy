@@ -138,23 +138,35 @@ def draw_participant_and_simulation(participant_data,
                                     trial_length=144,
                                     save=True,
                                     save_path=None,
-                                    show=False):
-    plt.figure(figsize=[8, 6], dpi=80)
+                                    show=False,
+                                    multiple_simulation=False):
+    if show:
+        plt.figure(figsize=[8, 6], dpi=80)
     mean = np.mean(participant_data, axis=0)
     std = np.std(participant_data, axis=0) / np.sqrt(18)
     simulation_mean = np.mean(simulation_data, axis=0)
-    simulation_std = np.std(simulation_data, axis=0) / np.sqrt(18)
+    simulation_std = np.std(simulation_data, axis=0)
+    if not multiple_simulation:
+        simulation_std /= np.sqrt(18)
     if smooth:
         mean = savitzky_golay(mean, SAVITZKY_GOLAY_WINDOW, SAVITZKY_GOLAY_ORDER)
         simulation_mean = savitzky_golay(simulation_mean, SAVITZKY_GOLAY_WINDOW, SAVITZKY_GOLAY_ORDER)
-    plt.plot(mean, linewidth=3.0, label="participant")
-    plt.fill_between(range(0, trial_length),
-                     mean - std, mean + std,
-                     alpha=0.2)
     plt.plot(simulation_mean, linewidth=3.0, label="simulation")
+    lower = simulation_mean - 1.96 * simulation_std
+    upper = simulation_mean + 1.96 * simulation_std
     plt.fill_between(range(0, trial_length),
-                     simulation_mean - simulation_std, simulation_mean + simulation_std,
+                     lower, upper,
                      alpha=0.2)
+    plt.plot(mean, linewidth=3.0, label="participant")
+
+    if multiple_simulation:
+        for i in range(trial_length):
+            if mean[i] < lower[i] or mean[i] > upper[i]:
+                plt.vlines(i, 0, 0.1, colors="red")
+    else:
+        plt.fill_between(range(0, trial_length),
+                         mean - std, mean + std,
+                         alpha=0.2)
 
     plt.vlines(36, 0, 50)
     plt.vlines(72, 0, 50)
@@ -182,9 +194,9 @@ def draw_participant_and_simulation(participant_data,
             plt.ylabel("Last Optimal P", fontsize=20)
         else:
             plt.ylabel("Optimal P", fontsize=20)
-    plt.legend()
-    # if title:
-    #     plt.title(title)
+    plt.legend(loc="lower right")
+    if title:
+        plt.title(title)
     ax = plt.gca()
     ax.spines["right"].set_color("none")
     ax.spines["top"].set_color("none")

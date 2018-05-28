@@ -31,7 +31,7 @@ for participant_param in fit_result:
     #             forget=float(participant_param["forget_MF"]),
     #             path=BASE_PATH,
     #             seed=participant_id)
-    simulate_MB(randomized=participant_id % 2 ==0,
+    simulate_MB(randomized=participant_id % 2 == 0,
                 eta=float(participant_param["eta"]),
                 tau=float(participant_param["tau"]),
                 repeat=1,

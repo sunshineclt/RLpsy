@@ -37,7 +37,7 @@ for participant_param in fit_result:
     simulate_MB(randomized=participant_id % 2 == 0,
                 eta=float(participant_param["eta"]),
                 tau=float(participant_param["tau"]),
-                repeat=1,
+                repeat=NUMBER_OF_REPEAT,
                 gamma=float(participant_param["gamma"]),
                 forget=float(participant_param["forget_MB"]),
                 path=BASE_PATH,

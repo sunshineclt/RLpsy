@@ -24,7 +24,8 @@ def draw(metric, method, simulate_data, participant_data, randomized):
                                     save_path="participant_simulation_comparison_all/",
                                     save=False,
                                     show=False,
-                                    multiple_simulation=True)
+                                    multiple_simulation=True,
+                                    smooth=False)
 
 
 for metric_name in ["optimal", "optimal_inner", "optimal_outer", "optimal_last"]:

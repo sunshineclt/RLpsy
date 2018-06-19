@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 participant_analysis_data = DataSaver.load_from_file("analysis_result.pkl")
-model_names = ["MF", "MF_no_reinit"]  # could be "MF", "MB", "MF_no_reinit"
+model_names = ["MF", "MB", "MF_no_reinit", "MF_attention"]  # could be "MF", "MB", "MF_no_reinit", "MF_attention"
 model_number = len(model_names)
 
 simulate_analysis_data = {}
@@ -34,7 +34,7 @@ def draw(metric, method, simulate_data, participant_data, randomized):
 
 
 for metric_name in ["optimal", "optimal_inner", "optimal_outer", "optimal_last"]:
-    plt.figure(figsize=[model_number * 6, 8], dpi=80)
+    plt.figure(figsize=[12, model_number * 4], dpi=80)
     for index, name in enumerate(model_names):
         averaged_simulate_data = []
         for i in range(NUMBER_OF_REPEAT):

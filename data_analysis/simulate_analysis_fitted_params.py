@@ -5,10 +5,11 @@ import os
 from simulate.simulate_MF import simulate_MF
 from simulate.simulate_MB import simulate_MB
 from simulate.simulate_MF_no_reinit import simulate_MF_no_reinit
+from simulate.simulate_MF_attention import simulate_MF_attention
 from utils.DataSaver import DataSaver
 from data_analysis.analysis_optimal import optimal_probability
 
-MODEL_NAME = "MF_no_reinit"
+MODEL_NAME = "MF_attention"
 
 f = open(MODEL_NAME + "_fit_result.csv", "r")
 fit_result = csv.DictReader(f)
@@ -43,12 +44,22 @@ for participant_param in fit_result:
     #             forget=float(participant_param["forget_MB"]),
     #             path=BASE_PATH,
     #             seed=participant_id)
-    simulate_MF_no_reinit(randomized=participant_id % 2 == 0,
+    # simulate_MF_no_reinit(randomized=participant_id % 2 == 0,
+    #                       alpha=float(participant_param["alpha"]),
+    #                       tau=float(participant_param["tau"]),
+    #                       repeat=NUMBER_OF_REPEAT,
+    #                       gamma=float(participant_param["gamma"]),
+    #                       forget=float(participant_param["forget_MF"]),
+    #                       path=BASE_PATH,
+    #                       seed=participant_id)
+    simulate_MF_attention(randomized=participant_id % 2 == 0,
                           alpha=float(participant_param["alpha"]),
                           tau=float(participant_param["tau"]),
                           repeat=NUMBER_OF_REPEAT,
                           gamma=float(participant_param["gamma"]),
                           forget=float(participant_param["forget_MF"]),
+                          alpha_attention=float(participant_param["alpha_attention"]),
+                          forget_attention=float(participant_param["forget_attention"]),
                           path=BASE_PATH,
                           seed=participant_id)
 

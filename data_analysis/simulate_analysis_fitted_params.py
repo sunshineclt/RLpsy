@@ -4,10 +4,11 @@ import os
 
 from simulate.simulate_MF import simulate_MF
 from simulate.simulate_MB import simulate_MB
+from simulate.simulate_MF_no_reinit import simulate_MF_no_reinit
 from utils.DataSaver import DataSaver
 from data_analysis.analysis_optimal import optimal_probability
 
-MODEL_NAME = "MB"
+MODEL_NAME = "MF_no_reinit"
 
 f = open(MODEL_NAME + "_fit_result.csv", "r")
 fit_result = csv.DictReader(f)
@@ -34,14 +35,22 @@ for participant_param in fit_result:
     #             forget=float(participant_param["forget_MF"]),
     #             path=BASE_PATH,
     #             seed=participant_id)
-    simulate_MB(randomized=participant_id % 2 == 0,
-                eta=float(participant_param["eta"]),
-                tau=float(participant_param["tau"]),
-                repeat=NUMBER_OF_REPEAT,
-                gamma=float(participant_param["gamma"]),
-                forget=float(participant_param["forget_MB"]),
-                path=BASE_PATH,
-                seed=participant_id)
+    # simulate_MB(randomized=participant_id % 2 == 0,
+    #             eta=float(participant_param["eta"]),
+    #             tau=float(participant_param["tau"]),
+    #             repeat=NUMBER_OF_REPEAT,
+    #             gamma=float(participant_param["gamma"]),
+    #             forget=float(participant_param["forget_MB"]),
+    #             path=BASE_PATH,
+    #             seed=participant_id)
+    simulate_MF_no_reinit(randomized=participant_id % 2 == 0,
+                          alpha=float(participant_param["alpha"]),
+                          tau=float(participant_param["tau"]),
+                          repeat=NUMBER_OF_REPEAT,
+                          gamma=float(participant_param["gamma"]),
+                          forget=float(participant_param["forget_MF"]),
+                          path=BASE_PATH,
+                          seed=participant_id)
 
     for file in os.listdir(BASE_PATH):
         path = os.path.join(BASE_PATH, file)
@@ -67,4 +76,5 @@ for participant_param in fit_result:
         savers[repeat_id].save_trials_data("optimal_last", participant_id, result[1]["last"])
 
 for repeat in range(NUMBER_OF_REPEAT):
-    savers[repeat].save_to_file("simulate_analysis_result/" + MODEL_NAME + "_simulate_analysis_result" + str(repeat) + ".pkl")
+    savers[repeat].save_to_file(
+        "simulate_analysis_result/" + MODEL_NAME + "_simulate_analysis_result" + str(repeat) + ".pkl")

@@ -6,14 +6,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 participant_analysis_data = DataSaver.load_from_file("analysis_result.pkl")
-simulate_analysis_data = {"MF": [],
-                          "MB": []}
+model_names = ["MF", "MF_no_reinit"]  # could be "MF", "MB", "MF_no_reinit"
+model_number = len(model_names)
+
+simulate_analysis_data = {}
+for name in model_names:
+    simulate_analysis_data[name] = []
+
+
 NUMBER_OF_REPEAT = 50
 for i in range(NUMBER_OF_REPEAT):
-    analysis_result = DataSaver.load_from_file("simulate_analysis_result/MF_simulate_analysis_result" + str(i) + ".pkl")
-    simulate_analysis_data["MF"].append(analysis_result)
-    analysis_result = DataSaver.load_from_file("simulate_analysis_result/MB_simulate_analysis_result" + str(i) + ".pkl")
-    simulate_analysis_data["MB"].append(analysis_result)
+    for name in model_names:
+        analysis_result = DataSaver.load_from_file("simulate_analysis_result/" + name + "_simulate_analysis_result" + str(i) + ".pkl")
+        simulate_analysis_data[name].append(analysis_result)
 
 
 def draw(metric, method, simulate_data, participant_data, randomized):
@@ -29,23 +34,18 @@ def draw(metric, method, simulate_data, participant_data, randomized):
 
 
 for metric_name in ["optimal", "optimal_inner", "optimal_outer", "optimal_last"]:
-    plt.figure(figsize=[12, 8], dpi=80)
-    averaged_simulate_data = []
-    for i in range(NUMBER_OF_REPEAT):
-        averaged_simulate_data.append(simulate_analysis_data["MF"][i].get_data(metric_name))
-    averaged_simulate_data = np.array(averaged_simulate_data)
-    plt.subplot(221)
-    draw(metric_name, "MF", np.mean(averaged_simulate_data[:, ::2, :], axis=1), participant_analysis_data.get_data(metric_name)[::2, :], randomized=True)
-    plt.subplot(222)
-    draw(metric_name, "MF", np.mean(averaged_simulate_data[:, 1::2, :], axis=1), participant_analysis_data.get_data(metric_name)[1::2, :], randomized=False)
-    averaged_simulate_data = []
-    for i in range(NUMBER_OF_REPEAT):
-        averaged_simulate_data.append(simulate_analysis_data["MB"][i].get_data(metric_name))
-    averaged_simulate_data = np.array(averaged_simulate_data)
-    plt.subplot(223)
-    draw(metric_name, "MB", np.mean(averaged_simulate_data[:, ::2, :], axis=1),
-         participant_analysis_data.get_data(metric_name)[::2, :], randomized=True)
-    plt.subplot(224)
-    draw(metric_name, "MB", np.mean(averaged_simulate_data[:, 1::2, :], axis=1),
-         participant_analysis_data.get_data(metric_name)[1::2, :], randomized=False)
+    plt.figure(figsize=[model_number * 6, 8], dpi=80)
+    for index, name in enumerate(model_names):
+        averaged_simulate_data = []
+        for i in range(NUMBER_OF_REPEAT):
+            averaged_simulate_data.append(simulate_analysis_data[name][i].get_data(metric_name))
+        averaged_simulate_data = np.array(averaged_simulate_data)
+        plt.subplot(model_number * 100 + 20 + (index * 2 + 1))
+        draw(metric_name, name,
+             np.mean(averaged_simulate_data[:, ::2, :], axis=1),
+             participant_analysis_data.get_data(metric_name)[::2, :], randomized=True)
+        plt.subplot(model_number * 100 + 20 + (index * 2 + 2))
+        draw(metric_name, name,
+             np.mean(averaged_simulate_data[:, 1::2, :], axis=1),
+             participant_analysis_data.get_data(metric_name)[1::2, :], randomized=False)
     plt.show()

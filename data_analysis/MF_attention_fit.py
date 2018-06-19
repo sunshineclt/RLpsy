@@ -168,7 +168,7 @@ if __name__ == "__main__":
                 min_fun = result[i].fun
                 min_fun_x = result[i].x
 
-        print("For participant %d, best fit lld is %.3f, alpha=%.2f, tau=%.2f, gamma=%.2f, forget=%.5f, gate=%.2f, alpha_attention=%.2f, forget_attention=%.2f" %
+        print("For participant %d, best fit lld is %.3f, alpha=%.2f, tau=%.2f, gamma=%.2f, forget=%.5f, alpha_attention=%.2f, forget_attention=%.2f" %
               (participant_id, min_fun, *min_fun_x))
         writer.writerow(dict(zip(fieldnames, [participant_id, min_fun, *min_fun_x])))
 

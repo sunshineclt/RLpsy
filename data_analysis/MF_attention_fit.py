@@ -29,7 +29,7 @@ def MF_attention_lld(params):
             return 2
 
     q_value = np.zeros(shape=[3, 6, 3])
-    attention = np.zeros(shape=[3, 3])
+    attention = np.zeros(shape=[3])
 
     lld = 0
     for episode in range(TRIAL_LENGTH):
@@ -57,12 +57,12 @@ def MF_attention_lld(params):
             if trial_end_state == new_state:
                 target = max(21 - step, 1)
             else:
-                target = gamma * attention[trial_end_state][state_transform(trial_end_state, new_state)]
-            delta = target - attention[trial_end_state][state_transform(trial_end_state, now_state)]
-            attention[trial_end_state][state_transform(trial_end_state, now_state)] += alpha_attention * delta
+                target = gamma * attention[state_transform(trial_end_state, new_state)]
+            delta = target - attention[state_transform(trial_end_state, now_state)]
+            attention[state_transform(trial_end_state, now_state)] += alpha_attention * delta
 
             if Q_LEARNING:
-                lr = attention[trial_end_state][state_transform(trial_end_state, now_state)] * alpha
+                lr = attention[state_transform(trial_end_state, now_state)] * alpha
                 lr = min(lr, 1)
                 if trial_end_state == new_state:
                     target = max(21 - step, 1)
@@ -71,7 +71,7 @@ def MF_attention_lld(params):
                 delta = target - q_value[trial_end_state][now_state, action_chosen]
                 q_value[trial_end_state][now_state, action_chosen] += lr * delta
             elif step != 1:
-                lr = attention[trial_end_state][state_transform(trial_end_state, last_state)] * alpha
+                lr = attention[state_transform(trial_end_state, last_state)] * alpha
                 lr = min(lr, 1)
                 target = 0 + gamma * q_value[trial_end_state][now_state, action_chosen]
                 delta = target - q_value[trial_end_state][last_state, last_action]
@@ -86,7 +86,7 @@ def MF_attention_lld(params):
             # attention *= (1 - forget_attention)
 
         if not Q_LEARNING:
-            lr = attention[trial_end_state][state_transform(trial_end_state, last_state)] * alpha
+            lr = attention[state_transform(trial_end_state, last_state)] * alpha
             lr = min(lr, 1)
             target = max(21 - step, 1)
             delta = target - q_value[trial_end_state][last_state, last_action]
@@ -142,7 +142,7 @@ if __name__ == "__main__":
             return res
 
 
-        pool = mp.Pool(124)
+        pool = mp.Pool(12)
         bounds = [Params.PARAM_BOUNDS["alpha"],
                   Params.PARAM_BOUNDS["tau"],
                   Params.PARAM_BOUNDS["gamma"],

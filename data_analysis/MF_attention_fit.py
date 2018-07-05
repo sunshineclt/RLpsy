@@ -18,7 +18,7 @@ def MF_attention_lld(params):
     gamma = params[2]
     forget = params[3]
     alpha_attention = params[4]
-    forget_attention = params[5]
+    # forget_attention = params[5]
 
     def state_transform(end_state, state):
         if end_state == state:
@@ -83,7 +83,7 @@ def MF_attention_lld(params):
 
             # forget
             q_value *= (1 - forget)
-            attention *= (1 - forget_attention)
+            # attention *= (1 - forget_attention)
 
         if not Q_LEARNING:
             lr = attention[trial_end_state][state_transform(trial_end_state, last_state)] * alpha
@@ -110,8 +110,7 @@ if __name__ == "__main__":
                   "tau",
                   "gamma",
                   "forget_MF",
-                  "alpha_attention",
-                  "forget_attention"]
+                  "alpha_attention"]
     writer = csv.DictWriter(MF_fit_result, fieldnames)
     writer.writerow(dict(zip(fieldnames, fieldnames)))
 
@@ -148,8 +147,7 @@ if __name__ == "__main__":
                   Params.PARAM_BOUNDS["tau"],
                   Params.PARAM_BOUNDS["gamma"],
                   Params.PARAM_BOUNDS["forget_MF"],
-                  Params.PARAM_BOUNDS["alpha"],
-                  Params.PARAM_BOUNDS["forget_MF"]]
+                  Params.PARAM_BOUNDS["alpha"]]
         NUMBER_OF_INITIAL_VALUE = 1000
         initial_value = np.zeros(shape=[NUMBER_OF_INITIAL_VALUE, len(bounds)])
         for i in range(NUMBER_OF_INITIAL_VALUE):
@@ -168,7 +166,7 @@ if __name__ == "__main__":
                 min_fun = result[i].fun
                 min_fun_x = result[i].x
 
-        print("For participant %d, best fit lld is %.3f, alpha=%.2f, tau=%.2f, gamma=%.2f, forget=%.5f, alpha_attention=%.2f, forget_attention=%.2f" %
+        print("For participant %d, best fit lld is %.3f, alpha=%.2f, tau=%.2f, gamma=%.2f, forget=%.5f, alpha_attention=%.2f" %
               (participant_id, min_fun, *min_fun_x))
         writer.writerow(dict(zip(fieldnames, [participant_id, min_fun, *min_fun_x])))
 

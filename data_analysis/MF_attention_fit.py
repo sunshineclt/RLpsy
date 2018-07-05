@@ -142,7 +142,7 @@ if __name__ == "__main__":
             return res
 
 
-        pool = mp.Pool(12)
+        pool = mp.Pool(124)
         bounds = [Params.PARAM_BOUNDS["alpha"],
                   Params.PARAM_BOUNDS["tau"],
                   Params.PARAM_BOUNDS["gamma"],

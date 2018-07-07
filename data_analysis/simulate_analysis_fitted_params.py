@@ -59,7 +59,6 @@ for participant_param in fit_result:
                           gamma=float(participant_param["gamma"]),
                           forget=float(participant_param["forget_MF"]),
                           alpha_attention=float(participant_param["alpha_attention"]),
-                          forget_attention=float(participant_param["forget_attention"]),
                           path=BASE_PATH,
                           seed=participant_id)
 

@@ -18,7 +18,6 @@ def simulate_MF_attention(randomized=True,
                           gamma=1,
                           forget=0.001,
                           alpha_attention=0.1,
-                          forget_attention=0.001,
                           path=None,
                           seed=None):
     if path:
@@ -121,7 +120,6 @@ def simulate_MF_attention(randomized=True,
 
                 now_state = new_state
                 q_value *= (1 - forget)
-                attention *= (1 - forget_attention)
 
             # raw_data storing
             total_reward += max(21 - step, 1)

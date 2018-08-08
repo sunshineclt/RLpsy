@@ -160,9 +160,15 @@ def draw_participant_and_simulation(participant_data,
     plt.plot(mean, linewidth=3.0, label="participant")
 
     if multiple_simulation:
+        count = [0, 0, 0, 0]
         for i in range(trial_length):
             if mean[i] < lower[i] or mean[i] > upper[i]:
                 plt.vlines(i, 0, 0.1, colors="red")
+                count[i // 36] += 1
+        coord = 18
+        for i in range(4):
+            plt.text(coord, 0.2, str(count[i]))
+            coord += 36
     else:
         plt.fill_between(range(0, trial_length),
                          mean - std, mean + std,

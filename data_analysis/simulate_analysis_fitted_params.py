@@ -19,8 +19,7 @@ TRIAL_LENGTH = 144
 NUMBER_OF_REPEAT = 50
 savers = []
 for _ in range(NUMBER_OF_REPEAT):
-    savers.append(DataSaver(["optimal",
-                             "optimal_inner", "optimal_outer", "optimal_last"],
+    savers.append(DataSaver(["optimal", "optimal_inner", "optimal_outer", "optimal_last"],
                             NUMBER_OF_PARTICIPANT,
                             TRIAL_LENGTH))
 
@@ -52,7 +51,7 @@ for participant_param in fit_result:
     #                       forget=float(participant_param["forget_MF"]),
     #                       path=BASE_PATH,
     #                       seed=participant_id)
-    simulate_MF_attention(randomized=participant_id % 2 == 0,
+    simulate_MF_attention(randomized=True,
                           alpha=float(participant_param["alpha"]),
                           tau=float(participant_param["tau"]),
                           repeat=NUMBER_OF_REPEAT,

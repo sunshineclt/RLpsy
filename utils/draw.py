@@ -212,3 +212,69 @@ def draw_participant_and_simulation(participant_data,
         plt.savefig(save_path + title + ".jpg")
     if show:
         plt.show()
+
+
+def draw_even_odd_simulation(simulation_data_even,
+                             simulation_data_odd,
+                             data_name,
+                             title=None,
+                             smooth=True,
+                             trial_length=144,
+                             save=True,
+                             save_path=None,
+                             show=False):
+    if show:
+        plt.figure(figsize=[8, 6], dpi=80)
+    simulation_mean_even = np.mean(simulation_data_even, axis=0)
+    simulation_std_even = np.std(simulation_data_even, axis=0)
+    simulation_mean_odd = np.mean(simulation_data_odd, axis=0)
+    simulation_std_odd = np.std(simulation_data_odd, axis=0)
+    if smooth:
+        simulation_mean_even = savitzky_golay(simulation_mean_even, SAVITZKY_GOLAY_WINDOW, SAVITZKY_GOLAY_ORDER)
+        simulation_mean_odd = savitzky_golay(simulation_mean_odd, SAVITZKY_GOLAY_WINDOW, SAVITZKY_GOLAY_ORDER)
+
+    plt.plot(simulation_mean_even, linewidth=3.0, label="even")
+    lower = simulation_mean_even - 1.96 * simulation_std_even
+    upper = simulation_mean_even + 1.96 * simulation_std_even
+    plt.fill_between(range(0, trial_length),
+                     lower, upper,
+                     alpha=0.2)
+    plt.plot(simulation_mean_odd, linewidth=3.0, label="odd")
+    lower = simulation_mean_odd - 1.96 * simulation_std_odd
+    upper = simulation_mean_odd + 1.96 * simulation_std_odd
+    plt.fill_between(range(0, trial_length),
+                     lower, upper,
+                     alpha=0.2)
+
+    plt.vlines(36, 0, 50)
+    plt.vlines(72, 0, 50)
+    plt.vlines(108, 0, 50)
+    plt.xlim([0, 144])
+    plt.xticks(fontsize=20)
+    plt.yticks(fontsize=20)
+    plt.xlabel("trial", fontsize=20)
+    if data_name == "step":
+        plt.ylim([0, 30])
+        plt.ylabel("Step", fontsize=20)
+    elif data_name.find("optimal") != -1:
+        plt.ylim([0, 1.2])
+        if data_name.find("inner") != -1:
+            plt.ylabel("Inner Optimal P", fontsize=20)
+        elif data_name.find("outer") != -1:
+            plt.ylabel("Outer Optimal P", fontsize=20)
+        elif data_name.find("last") != -1:
+            plt.ylabel("Last Optimal P", fontsize=20)
+        else:
+            plt.ylabel("Optimal P", fontsize=20)
+    plt.legend(loc="upper right")
+    if title:
+        plt.title(title)
+    ax = plt.gca()
+    ax.spines["right"].set_color("none")
+    ax.spines["top"].set_color("none")
+    ax.spines["bottom"].set_linewidth(3)
+    ax.spines["left"].set_linewidth(3)
+    if save:
+        plt.savefig(save_path + title + ".jpg")
+    if show:
+        plt.show()
